@@ -19,7 +19,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /signup:
+ * /auth/signup:
  *   post:
  *     summary: Registrazione di un nuovo utente
  *     tags: [Auth]
@@ -129,7 +129,7 @@ router.post('/signup', async (req, res) => {
 
 /**
  * @swagger
- * /login:
+ * /auth/login:
  *   post:
  *     summary: Login per un utente esistente
  *     tags: [Auth]

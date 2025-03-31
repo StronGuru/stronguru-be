@@ -192,7 +192,10 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: 'Credenziali non valide' });
+    if (!user) return res.status(400).json({ msg: 'Nessun account registrato con questa email' });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(400).json({ msg: 'Credenziali non valide' });
 
     // Check if email is verified
     if (!user.isVerified) {
@@ -201,8 +204,7 @@ router.post('/login', async (req, res) => {
         });
     }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ msg: 'Credenziali non valide' });
+   
 
     const payload = { id: user.id, name: user.name, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });

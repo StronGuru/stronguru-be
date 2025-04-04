@@ -5,9 +5,17 @@ const jwt = require('jsonwebtoken'); // Per la gestione dei token JWT
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    
+    //aggiunta validazione semplice per email - Ms
+    email: { 
+        type: String, 
+        required: true, 
+        unique: true, 
+        match: [/^\S+@\S+\.\S+$/, 'Email non valida']
+    },
+
     password: { type: String, required: true },
-    dateOfBirth: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true }, //data di nascita come data invece che stringa - Ms
     gender: { type: String, required: true },
     phone: { type: String, required: true },
     biography: { type: String, required: false },
@@ -26,6 +34,7 @@ userSchema.pre('save', async function (next) {
 
 // Metodo per confrontare la password durante il login
 userSchema.methods.comparePassword = async function (password) {
+    if (!this.password) return false; //nel caso in cui la password fosse null - Ms
     return await bcrypt.compare(password, this.password);
 };
 

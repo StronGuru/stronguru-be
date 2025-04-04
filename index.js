@@ -5,9 +5,14 @@ const path = require('path');
 const cors = require('cors');
 const methodOverride = require('method-override');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
+const passport = require('passport');
+
 
 const app = express();
 
+//inizializzazione passport
+require('./config/passport')(passport);
+app.use(passport.initialize());
 
 app.use(methodOverride('_method'));
 
@@ -35,6 +40,11 @@ mongoose.connect(mongoURI)
     .then(() => console.log('Connesso al database MongoDB!'))
     .catch(err => console.error('Errore di connessione al database:', err));
 
+//gestione errori globali -Ms
+app.use((err, req, res, next) => {
+    console.error('Errore globale:', err.stack);
+    res.status(500).json({message: 'Errore interno del server'});
+});
 
 // Configurazione per servire file statici dalla cartella "public"
 app.use(express.static(path.join(__dirname, 'public')));

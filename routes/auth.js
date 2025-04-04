@@ -99,6 +99,7 @@ router.post('/signup', async (req, res) => {
 
         const activationToken = crypto.randomBytes(32).toString("hex");
 
+        //il token viene creato prima di aver salvato lo user, invertire l'ordine? - Ms
         await new UserToken({
             userId: user._id,
             token: activationToken,
@@ -206,7 +207,10 @@ router.post('/login', async (req, res) => {
 
    
 
-    const payload = { id: user.id, name: user.name, role: user.role };
+    const payload = { 
+        id: user.id, 
+        name: `${user.firstName} ${user.lastName}`, //user.name non veniva usato nel model
+        role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     res.json({ message: 'Login riuscito', 

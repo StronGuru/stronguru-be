@@ -89,7 +89,7 @@ const router = express.Router();
  */
 router.post('/signup/professional', async (req, res) => {
     try {
-        const { firstName, lastName, email, password, dateOfBirth, gender, phone, role} = req.body;
+        const { firstName, lastName, email, password, dateOfBirth, gender, phone, role, specializations} = req.body;
 
         if(req.role != USER_ROLES.PROFESSIONAL) {
             return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + req.role });
@@ -102,7 +102,7 @@ router.post('/signup/professional', async (req, res) => {
         }
 
         // Crea un nuovo utente
-        const user = new User({ firstName, lastName, email, password, dateOfBirth, gender, phone, role, specializations });
+        const user = new User({ firstName, lastName, email, password, dateOfBirth, gender, phone, role });
 
         // Before saving the user
         console.log('User before save:', user);

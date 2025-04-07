@@ -13,6 +13,9 @@ const User = require('../models/User');
 const userActivationEmail = require("../config/emailService");
 const UserToken = require("../models/UserToken");
 require('dotenv').config();
+const { USER_ROLES } = require('../constants/userRoles');
+const Professional = require('../models/discriminators/Professional');
+const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
 
 const router = express.Router();
 
@@ -84,9 +87,13 @@ const router = express.Router();
  *                 error:
  *                   type: string
  */
-router.post('/signup', async (req, res) => {
+router.post('/signup/professional', async (req, res) => {
     try {
-        const { firstName, lastName, email, password, dateOfBirth, gender, phone} = req.body;
+        const { firstName, lastName, email, password, dateOfBirth, gender, phone, role} = req.body;
+
+        if(req.role != USER_ROLES.PROFESSIONAL) {
+            return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + req.role });
+        }
 
         // Verifica se l'utente esiste già
         const existingUser = await User.findOne({ email });
@@ -95,7 +102,27 @@ router.post('/signup', async (req, res) => {
         }
 
         // Crea un nuovo utente
-        const user = new User({ firstName, lastName, email, password, dateOfBirth, gender, phone });
+        const user = new User({ firstName, lastName, email, password, dateOfBirth, gender, phone, role, specializations });
+
+        // Before saving the user
+        console.log('User before save:', user);
+
+        // Save user
+        await user.save();
+
+        const validSpecializations = filterValidSpecializations(specializations);
+
+        if (validSpecializations.length === 0) {
+            return res.status(400).json({ message: 'Nessuna specializzazione valida fornita' });
+          }
+
+        const professional = new Professional({
+            user: user._id,
+            specializations: validSpecializations
+        });
+        await professional.save();
+
+        assignSpecToProfessional(validSpecializations, professional._id);
 
         const activationToken = crypto.randomBytes(32).toString("hex");
 
@@ -108,20 +135,14 @@ router.post('/signup', async (req, res) => {
 
         userActivationEmail(user.email, activationToken);
 
-        // Before saving the user
-        console.log('User before save:', user);
-
-        // Save user
-        await user.save();
-
         res.status(201).json({
-            message: 'Registrazione riuscita. Per favore controlla la tua email per verificare l\'account',
+            message: 'Registrazione professionista riuscita. Per favore controlla la tua email per verificare l\'account',
             userId: user._id
         });
     } catch (err) {
         console.error('Error in signup:', err);
         res.status(400).json({
-            message: 'Errore nella registrazione dell\'utente',
+            message: 'Errore nella registrazione dell\'utente professionista',
             error: err.message
         });
     }

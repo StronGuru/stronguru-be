@@ -1,7 +1,7 @@
-const PROFESSIONA_SPECIALIZATIONS = {
-    NUTRIZIONIST: 'nutrizionist',
+const PROFESSIONAL_SPECIALIZATIONS = {
+    NUTRITIONIST: 'nutritionist',
     PSYCHOLOGIST: 'psychologist',
-    PERSONAL_TRAINER: 'personal_trainer',
+    TRAINER: 'trainer',
 }
 
-module.exports = { PROFESSIONA_SPECIALIZATIONS };
+module.exports = { PROFESSIONAL_SPECIALIZATIONS };

@@ -16,6 +16,7 @@ require('dotenv').config();
 const { USER_ROLES } = require('../constants/userRoles');
 const Professional = require('../models/discriminators/Professional');
 const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
+const { default: mongoose } = require('mongoose');
 
 const router = express.Router();
 
@@ -88,11 +89,14 @@ const router = express.Router();
  *                   type: string
  */
 router.post('/signup/professional', async (req, res) => {
+
+    let professional = null;
+
     try {
         const { firstName, lastName, email, password, dateOfBirth, gender, phone, role, specializations} = req.body;
 
-        if(req.role != USER_ROLES.PROFESSIONAL) {
-            return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + req.role });
+        if(role != USER_ROLES.PROFESSIONAL) {
+            return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
         }
 
         // Verifica se l'utente esiste già
@@ -101,24 +105,23 @@ router.post('/signup/professional', async (req, res) => {
             return res.status(400).json({ message: 'Utente già registrato con questa email' });
         }
 
-        // Crea un nuovo utente
-        const user = new User({ firstName, lastName, email, password, dateOfBirth, gender, phone, role });
-
-        // Before saving the user
-        console.log('User before save:', user);
-
-        // Save user
-        await user.save();
-
         const validSpecializations = filterValidSpecializations(specializations);
+        console.log("specializzazioni valide: " + validSpecializations)
 
-        if (validSpecializations.length === 0) {
+        if (validSpecializations === 0) {
             return res.status(400).json({ message: 'Nessuna specializzazione valida fornita' });
           }
 
-        const professional = new Professional({
-            user: user._id,
-            specializations: validSpecializations
+        professional = new Professional({
+            firstName,
+            lastName, 
+            email, 
+            password, 
+            dateOfBirth, 
+            gender, 
+            phone, 
+            role,
+            specialization: validSpecializations
         });
         await professional.save();
 
@@ -126,21 +129,27 @@ router.post('/signup/professional', async (req, res) => {
 
         const activationToken = crypto.randomBytes(32).toString("hex");
 
-        //il token viene creato prima di aver salvato lo user, invertire l'ordine? - Ms
+
         await new UserToken({
-            userId: user._id,
+            userId: professional._id,
             token: activationToken,
             type: "activation",
         }).save();
 
-        userActivationEmail(user.email, activationToken);
+        userActivationEmail(professional.email, activationToken);
 
         res.status(201).json({
             message: 'Registrazione professionista riuscita. Per favore controlla la tua email per verificare l\'account',
-            userId: user._id
+            userId: professional._id
         });
     } catch (err) {
+
+        if (professional) {
+            await Professional.deleteOne({ _id: professional._id }); // Rimuove il professional creato
+        }
+
         console.error('Error in signup:', err);
+
         res.status(400).json({
             message: 'Errore nella registrazione dell\'utente professionista',
             error: err.message

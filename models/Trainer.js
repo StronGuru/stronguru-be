@@ -4,9 +4,9 @@ const trainerSchema = new mongoose.Schema({
     professional: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professional',
-        required: true
+        required: true,
+        unique: true
       },
-    
 });
 
 module.exports = mongoose.model('Trainer', trainerSchema);

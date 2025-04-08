@@ -4,7 +4,8 @@ const psychologistSchema = new mongoose.Schema({
     professional: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professional',
-        required: true
+        required: true,
+        unique: true
       },
 });
 

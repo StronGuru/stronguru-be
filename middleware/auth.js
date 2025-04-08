@@ -6,11 +6,6 @@ module.exports = (roles = []) => {
   return (req, res, next) => {
     passport.authenticate('jwt', { session: false }, (err, user) => {
 
-      if (roles.length && !roles.includes(user.role)) {
-        console.warn(`Accesso negato per ruolo: ${user.role}`)// per il debug -Ms
-        return res.status(403).json({ msg: 'Permessi insufficienti' });
-      }
-
       //aggiunta messaggi di errore più dettagliati -Ms
       if (err) {
         console.error('Errore autenticazione:', err);
@@ -18,6 +13,11 @@ module.exports = (roles = []) => {
       }
 
       if (!user) return res.status(401).json({ msg: 'Token non valido o utente non trovato'});
+
+      if (roles.length && !roles.includes(user.role)) {
+        console.warn(`Accesso negato per ruolo: ${user.role}`)// per il debug -Ms
+        return res.status(403).json({ msg: 'Permessi insufficienti' });
+      }
 
       req.user = user;
       next();

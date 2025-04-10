@@ -1,4 +1,5 @@
 const SPECIALIZATION_MODELS = require("./roleModelMap")
+const { PROFESSIONAL_SPECIALIZATIONS } = require('../constants/professionalSpecializations');
 
 /**
  * Verifica se una specializzazione è valida (case insensitive, trim)

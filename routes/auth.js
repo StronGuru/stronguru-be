@@ -23,18 +23,30 @@ const router = express.Router();
 
 /**
  * @swagger
- * /auth/signup:
+ * /auth/signup/professional:
  *   post:
- *     summary: Registrazione di un nuovo utente
+ *     summary: Registrazione di un nuovo professionista
  *     tags: [Auth]
- *     description: Crea un nuovo utente nel sistema, invia una email di attivazione all'indirizzo fornito e richiede la verifica dell'account.
+ *     description: Crea un nuovo utente con ruolo "professional", assegna le specializzazioni e invia un'email di attivazione.
  *     requestBody:
- *       description: I dati dell'utente per la registrazione
+ *       description: I dati del professionista da registrare
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - password
+ *               - dateOfBirth
+ *               - gender
+ *               - phone
+ *               - role
+ *               - specialization
+ *               - acceptedTerms
+ *               - acceptedPrivacy
  *             properties:
  *               firstName:
  *                 type: string
@@ -53,47 +65,99 @@ const router = express.Router();
  *                 enum: [male, female, other]
  *               phone:
  *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [professional]
+ *               specialization:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   enum: [nutritionist, psychologist, trainer]
+ *               pIva:
+ *                 type: string
+ *               contactEmail:
+ *                 type: string
+ *               contactPhone:
+ *                 type: string
+ *               address:
+ *                 type: object
+ *                 properties:
+ *                   street:
+ *                     type: string
+ *                   city:
+ *                     type: string
+ *                   cap:
+ *                     type: string
+ *                   province:
+ *                     type: string
+ *                   country:
+ *                     type: string
+ *               socialLinks:
+ *                 type: object
+ *                 properties:
+ *                   instagram:
+ *                     type: string
+ *                   linkedin:
+ *                     type: string
+ *                   facebook:
+ *                     type: string
+ *                   other:
+ *                     type: string
+ *               languages:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               expStartDate:
+ *                 type: string
+ *                 format: date
+ *               certifications:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               professionalExp:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               acceptedTerms:
+ *                 type: boolean
+ *               acceptedPrivacy:
+ *                 type: boolean
  *     responses:
  *       201:
- *         description: Registrazione riuscita. Un'email di attivazione è stata inviata.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 userId:
- *                   type: string
+ *         description: Registrazione riuscita
  *       400:
- *         description: Errore nella registrazione o l'utente esiste già con l'email fornita.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 error:
- *                   type: string
+ *         description: Dati mancanti o invalidi
  *       500:
- *         description: Errore nel server
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 error:
- *                   type: string
- */
+ *         description: Errore del server
+ */
 router.post('/signup/professional', async (req, res) => {
 
     let professional = null;
 
     try {
-        const { firstName, lastName, email, password, dateOfBirth, gender, phone, role, specializations} = req.body;
+        const { 
+            firstName, 
+            lastName, 
+            email, 
+            password, 
+            dateOfBirth, 
+            gender, 
+            phone, 
+            role, 
+            specializations,
+            taxCode,
+            pIva,
+            contactEmail,
+            contactPhone,
+            address,
+            socialLinks,
+            languages,
+            expStartDate,
+            certifications,
+            profesisonalExp,
+            acceptedTerms,
+            acceptedPrivacy
+        } = req.body;
 
         if(role != USER_ROLES.PROFESSIONAL) {
             return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
@@ -108,9 +172,13 @@ router.post('/signup/professional', async (req, res) => {
         const validSpecializations = filterValidSpecializations(specializations);
         console.log("specializzazioni valide: " + validSpecializations)
 
-        if (validSpecializations === 0) {
+        if (validSpecializations.lenght === 0) {
             return res.status(400).json({ message: 'Nessuna specializzazione valida fornita' });
           }
+
+        if (!acceptedTerms || !acceptedPrivacy) {
+            return res.status(400).json({ message: 'È necessario accettare termini e privacy policy'});
+        }
 
         professional = new Professional({
             firstName,
@@ -121,14 +189,26 @@ router.post('/signup/professional', async (req, res) => {
             gender, 
             phone, 
             role,
-            specialization: validSpecializations
+            specialization: validSpecializations,
+            taxCode,
+            pIva,
+            contactEmail,
+            contactPhone,
+            address,
+            socialLinks,
+            languages,
+            expStartDate,
+            certifications,
+            profesisonalExp,
+            acceptedTerms,
+            acceptedPrivacy
         });
+
         await professional.save();
 
         assignSpecToProfessional(validSpecializations, professional._id);
 
         const activationToken = crypto.randomBytes(32).toString("hex");
-
 
         await new UserToken({
             userId: professional._id,
@@ -148,10 +228,10 @@ router.post('/signup/professional', async (req, res) => {
             await Professional.deleteOne({ _id: professional._id }); // Rimuove il professional creato
         }
 
-        console.error('Error in signup:', err);
+        console.error('Error durante la registrazione:', err);
 
         res.status(400).json({
-            message: 'Errore nella registrazione dell\'utente professionista',
+            message: 'Errore nella registrazione del professionista',
             error: err.message
         });
     }

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // Per la gestione delle password
 const jwt = require('jsonwebtoken'); // Per la gestione dei token JWT
 const { USER_ROLES } = require('../constants/userRoles');
+const AddressSchema = require('./CommonAddress');
 
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
@@ -16,13 +17,20 @@ const userSchema = new mongoose.Schema({
     },
 
     password: { type: String, required: true },
-    dateOfBirth: { type: Date, required: true }, //data di nascita come data invece che stringa - Ms
+    dateOfBirth: { type: Date, required: true },
     gender: { type: String, required: true },
+    address: AddressSchema,
     phone: { type: String, required: true },
     biography: { type: String, required: false },
     profileImg: { type: String, required: false },
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(USER_ROLES), required: true, default: USER_ROLES.USER},
+    ambassador: { type: Boolean, default: false },
+    
+    //consenso
+    acceptedTerms: { type: Boolean, required: true },
+    acceptedPrivacy: { type: Boolean, required: true }
+
 }, {discriminatorKey: 'role', timestamps: true });
 
 // Hash della password prima di salvarla nel database

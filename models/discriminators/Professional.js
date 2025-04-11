@@ -6,7 +6,7 @@ const SocialLinksSchema = require("../SocialLinks");
 
 
 const ProfessionalSchema = new mongoose.Schema({
-    specialization: [{
+    specializations: [{
         type: String,
         enum: Object.values(PROFESSIONAL_SPECIALIZATIONS)
     }],

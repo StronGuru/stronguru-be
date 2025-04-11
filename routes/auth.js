@@ -44,7 +44,7 @@ const router = express.Router();
  *               - gender
  *               - phone
  *               - role
- *               - specialization
+ *               - specializations
  *               - acceptedTerms
  *               - acceptedPrivacy
  *             properties:
@@ -68,7 +68,7 @@ const router = express.Router();
  *               role:
  *                 type: string
  *                 enum: [professional]
- *               specialization:
+ *               specializations:
  *                 type: array
  *                 items:
  *                   type: string
@@ -137,6 +137,7 @@ router.post('/signup/professional', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'Utente già registrato con questa email' });
         }
+
 
         const validSpecializations = filterValidSpecializations(specializations);
         console.log("specializzazioni valide: " + validSpecializations)

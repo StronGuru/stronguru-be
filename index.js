@@ -65,6 +65,9 @@ app.use('/token', tokenAPI);
 const usersAPI = require('./routes/users');
 app.use('/users', usersAPI);
 
+const professionalAPI = require('./routes/professionals');
+app.use('/professionals', professionalAPI);
+
 // const professionistsAPI = require('./routes/professionists');
 // app.use('/professionists', professionistsAPI);
 

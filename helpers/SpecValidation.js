@@ -7,7 +7,7 @@ const { PROFESSIONAL_SPECIALIZATIONS } = require('../constants/professionalSpeci
  * @returns {boolean}
  */
 function isValidSpecialization(specialization) {
-    if (typeof specialization !== 'string') return false;
+    if (typeof specialization !== 'string' || specialization.length == 0) return false;
     const normalized = specialization.trim().toLowerCase();
     return Object.values(PROFESSIONAL_SPECIALIZATIONS).includes(normalized);
   }
@@ -28,7 +28,9 @@ async function assignSpecToProfessional(specializations = [], professionalId) {
 
      // Per ogni specializzazione, crea e assegna la relativa entità (es. Nutritionist, Trainer, ecc.)
              for (const specialization of specializations) {
+              console.log(specialization);
                 const Model = SPECIALIZATION_MODELS[specialization];
+                console.log(Model);
 
                 if (!Model) {
                     console.warn(`Specializzazione non gestita: ${specialization}`);

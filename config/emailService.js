@@ -13,7 +13,8 @@ async function userActivationEmail(to, activationToken) {
   }
   });
 
-  console.log(`Email inviata a: ${recipient}, con Token: ${activation_token}`);
+  //slice sul token per evitare di mostrarlo per intero - Ms
+  console.log(`Email inviata a: ${recipient}, con Token: ${activation_token.slice(0, 5)}...`);
 }
 
 module.exports = userActivationEmail;

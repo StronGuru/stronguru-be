@@ -7,8 +7,9 @@ const { PROFESSIONAL_SPECIALIZATIONS } = require('../constants/professionalSpeci
  * @returns {boolean}
  */
 function isValidSpecialization(specialization) {
-    if (typeof specialization !== 'string' || specialization.length == 0) return false;
+    if (typeof specialization !== 'string') return false;
     const normalized = specialization.trim().toLowerCase();
+    console.log("specializzazione da validare: " + normalized)
     return Object.values(PROFESSIONAL_SPECIALIZATIONS).includes(normalized);
   }
   

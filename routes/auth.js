@@ -142,7 +142,7 @@ router.post('/signup/professional', async (req, res) => {
         const validSpecializations = filterValidSpecializations(specializations);
         console.log("specializzazioni valide: " + validSpecializations)
 
-        if (validSpecializations.lenght === 0) {
+        if (validSpecializations.length === 0) {
             return res.status(400).json({ message: 'Nessuna specializzazione valida fornita' });
           }
 
@@ -159,7 +159,7 @@ router.post('/signup/professional', async (req, res) => {
             gender, 
             phone, 
             role,
-            specialization: validSpecializations,
+            specializations: validSpecializations,
             taxCode,
             pIva,
             contactEmail,

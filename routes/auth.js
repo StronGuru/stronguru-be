@@ -92,32 +92,6 @@ const router = express.Router();
  *                     type: string
  *                   country:
  *                     type: string
- *               socialLinks:
- *                 type: object
- *                 properties:
- *                   instagram:
- *                     type: string
- *                   linkedin:
- *                     type: string
- *                   facebook:
- *                     type: string
- *                   other:
- *                     type: string
- *               languages:
- *                 type: array
- *                 items:
- *                   type: string
- *               expStartDate:
- *                 type: string
- *                 format: date
- *               certifications:
- *                 type: array
- *                 items:
- *                   type: string
- *               professionalExp:
- *                 type: array
- *                 items:
- *                   type: string
  *               acceptedTerms:
  *                 type: boolean
  *               acceptedPrivacy:
@@ -150,11 +124,6 @@ router.post('/signup/professional', async (req, res) => {
             contactEmail,
             contactPhone,
             address,
-            socialLinks,
-            languages,
-            expStartDate,
-            certifications,
-            profesisonalExp,
             acceptedTerms,
             acceptedPrivacy
         } = req.body;
@@ -195,11 +164,6 @@ router.post('/signup/professional', async (req, res) => {
             contactEmail,
             contactPhone,
             address,
-            socialLinks,
-            languages,
-            expStartDate,
-            certifications,
-            profesisonalExp,
             acceptedTerms,
             acceptedPrivacy
         });
@@ -242,36 +206,62 @@ router.post('/signup/professional', async (req, res) => {
  * @swagger
  * /auth/login:
  *   post:
- *     summary: Login per un utente esistente
- *     tags: [Auth]
- *     description: Autentica un utente nel sistema, controllando la validità delle credenziali e generando un token JWT per l'accesso.
+ *     tags:
+ *       - Auth
+ *     summary: Effettua il login dell'utente
+ *     description: |
+ *       Effettua il login per un utente (atleta o professionista) e restituisce un token JWT.
+ *       La richiesta richiede l'email, la password e il client da cui si sta accedendo (web o mobile).
  *     requestBody:
- *       description: Le credenziali di login dell'utente
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - client
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: user@example.com
  *               password:
  *                 type: string
+ *                 format: password
+ *                 example: Password123
+ *               client:
+ *                 type: string
+ *                 enum: [web, mobile]
+ *                 description: Tipo di client che effettua la richiesta
+ *                 example: web
  *     responses:
  *       200:
- *         description: Login riuscito. Restituisce un token JWT.
+ *         description: Login effettuato con successo
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
  *                 token:
  *                   type: string
+ *                   description: Il token JWT per l'autenticazione futura
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: 64a1b7f54321cdef12345678
+ *                     email:
+ *                       type: string
+ *                       example: user@example.com
+ *                     role:
+ *                       type: string
+ *                       enum: [athlete, professional]
+ *                       example: professional
  *       400:
- *         description: Credenziali non valide o utente non trovato.
+ *         description: Credenziali non valide o email non trovata
  *         content:
  *           application/json:
  *             schema:
@@ -279,8 +269,9 @@ router.post('/signup/professional', async (req, res) => {
  *               properties:
  *                 msg:
  *                   type: string
+ *                   example: 'Credenziali non valide'
  *       401:
- *         description: L'utente non ha verificato la sua email.
+ *         description: Email non verificata
  *         content:
  *           application/json:
  *             schema:
@@ -288,8 +279,19 @@ router.post('/signup/professional', async (req, res) => {
  *               properties:
  *                 message:
  *                   type: string
+ *                   example: 'Per favore verifica la tua email prima di accedere'
+ *       403:
+ *         description: Accesso non autorizzato in base al client
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Solo i professionisti possono accedere da web.'
  *       500:
- *         description: Errore del server
+ *         description: Errore interno del server
  *         content:
  *           application/json:
  *             schema:
@@ -297,16 +299,31 @@ router.post('/signup/professional', async (req, res) => {
  *               properties:
  *                 msg:
  *                   type: string
+ *                   example: 'Errore del server'
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, client } = req.body;
+
+    // Validazione di base
+  if (!email || !password || !client) {
+    return res.status(400).json({ message: 'Email, password e client sono richiesti.' });
+  }
     
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: 'Nessun account registrato con questa email' });
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ msg: 'Credenziali non valide' });
+
+     // Controllo client ↔ ruolo
+  if (client === 'mobile' && user.role !== USER_ROLES.ATHLETE) {
+    return res.status(403).json({ message: 'Solo gli atleti possono accedere da mobile.' });
+  }
+
+  if (client === 'web' && user.role !== USER_ROLES.PROFESSIONAL) {
+    return res.status(403).json({ message: 'Solo i professionisti possono accedere da web: '  + user.role});
+  }
 
     // Check if email is verified
     if (!user.isVerified) {
@@ -318,13 +335,19 @@ router.post('/login', async (req, res) => {
    
 
     const payload = { 
-        id: user.id, 
-        name: `${user.firstName} ${user.lastName}`, //user.name non veniva usato nel model
-        role: user.role };
+        id: user.id,
+        role: user.role,
+        client: client };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-    res.json({ message: 'Login riuscito', 
-                token,  });
+    res.status(200).json({
+        token,
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+        }
+      });
   } catch (err) {
     res.status(500).json({ msg: 'Errore del server' });
   }

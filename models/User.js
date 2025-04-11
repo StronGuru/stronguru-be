@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs'); // Per la gestione delle password
 const jwt = require('jsonwebtoken'); // Per la gestione dei token JWT
 const { USER_ROLES } = require('../constants/userRoles');
 const AddressSchema = require('./CommonAddress');
+const SocialLinksSchema = require('./SocialLinks');
 
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
@@ -26,6 +27,7 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(USER_ROLES), required: true, default: USER_ROLES.USER},
     ambassador: { type: Boolean, default: false },
+    socialLinks: SocialLinksSchema,
     
     //consenso
     acceptedTerms: { type: Boolean, required: true },

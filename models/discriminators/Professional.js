@@ -20,8 +20,6 @@ const ProfessionalSchema = new mongoose.Schema({
 
     languages: [{ type: String }],
 
-    socialLinks: SocialLinksSchema,
-
     //esperienza
     expStartDate: { type: Date },
     professionalExp: [String],

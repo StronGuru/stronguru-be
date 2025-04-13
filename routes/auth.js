@@ -10,7 +10,7 @@ const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const User = require('../models/User');
-const userActivationEmail = require("../config/emailService");
+const sendTemplateEmail = require("../config/emailService");
 const UserToken = require("../models/UserToken");
 require('dotenv').config();
 const { USER_ROLES } = require('../constants/userRoles');
@@ -181,7 +181,15 @@ router.post('/signup/professional', async (req, res) => {
             type: "activation",
         }).save();
 
-        userActivationEmail(professional.email, activationToken);
+        await sendTemplateEmail({
+          to: professional.email,
+          templateKey: 'REGISTRATION',
+          dynamicData: {
+            activationToken: activationToken
+          }
+        })
+
+        console.log(`Email inviata a: ${professional.email}, con Token: ${activationToken.slice(0, 5)}...`);
 
         res.status(201).json({
             message: 'Registrazione professionista riuscita. Per favore controlla la tua email per verificare l\'account',
@@ -191,8 +199,8 @@ router.post('/signup/professional', async (req, res) => {
 
         if (professional) {
             await Professional.deleteOne({ _id: professional._id }); // Rimuove il professional creato
+            await UserToken.deleteOne({userId: professional._id});
         }
-
         console.error('Error durante la registrazione:', err);
 
         res.status(400).json({

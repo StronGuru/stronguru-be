@@ -6,6 +6,7 @@ const cors = require('cors');
 const methodOverride = require('method-override');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 const passport = require('passport');
+const useragent = require('express-useragent');
 
 
 const app = express();
@@ -13,6 +14,7 @@ const app = express();
 //inizializzazione passport
 require('./config/passport')(passport);
 app.use(passport.initialize());
+app.use(useragent.express());
 
 app.use(methodOverride('_method'));
 
@@ -28,6 +30,7 @@ const corsOptions =
 app.use(cors());
 
 app.use(express.json());
+app.set('trust proxy', true);
 app.use(express.urlencoded({ extended: true }));
 // Usa Swagger UI per documentare le API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -72,29 +75,8 @@ app.use('/users', usersAPI);
 const professionalAPI = require('./routes/professionals');
 app.use('/professionals', professionalAPI);
 
-// const professionistsAPI = require('./routes/professionists');
-// app.use('/professionists', professionistsAPI);
-
-// const dietAPI = require('./routes/diet');
-// app.use('/diet', dietAPI);
-
-// const psychoAPI = require('./routes/psycho');
-// app.use('/psycho', psychoAPI);
-
-// const gymAPI = require('./routes/gym');
-// app.use('/gym', gymAPI);
-
-// const calendarAPI = require('./routes/calendar');
-// app.use('/calendar', calendarAPI);
-
-// const recipesAPI = require('./routes/recipes');
-// app.use('/recipes', recipesAPI);
-
-// const settingsAPI = require('./routes/settingsPro');
-// app.use('/settings', settingsAPI);
-
-// const productsAPI = require('./routes/products');
-// app.use('/products', productsAPI);
+const userDevicesAPI = require('./routes/userDevices');
+app.use('/devices', userDevicesAPI);
 
 
 // Porta e avvio server

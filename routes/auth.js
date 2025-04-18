@@ -131,7 +131,7 @@ router.post('/signup/professional', async (req, res) => {
             acceptedPrivacy
         } = req.body;
 
-        if(role != USER_ROLES.PROFESSIONAL) {
+        if(role !== USER_ROLES.PROFESSIONAL) {
             return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
         }
 

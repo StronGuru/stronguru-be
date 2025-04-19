@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     
     //consenso
     acceptedTerms: { type: Boolean, required: true },
-    acceptedPrivacy: { type: Boolean, required: true }
+    acceptedPrivacy: { type: Boolean, required: true },
 
 }, {discriminatorKey: 'role', timestamps: true });
 

@@ -1,4 +1,5 @@
 const passport = require('passport');
+const UserDevices = require('../models/UserDevices');
 
 module.exports = (roles = []) => {
   if (typeof roles === 'string') roles = [roles]; //permette sia una stringa che un array
@@ -13,6 +14,9 @@ module.exports = (roles = []) => {
       }
 
       if (!user) return res.status(401).json({ msg: 'Token non valido o utente non trovato'});
+      
+      const deviceExists = UserDevices.findOne({user: user.id, _id: req.cookies.deviceId })
+      if (!deviceExists) return res.status(401).json({ msg: 'Dispositivo non più valido'});
 
       if (roles.length && !roles.includes(user.role)) {
         console.warn(`Accesso negato per ruolo: ${user.role}`)// per il debug -Ms

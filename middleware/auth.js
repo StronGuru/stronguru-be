@@ -14,9 +14,8 @@ module.exports = (roles = []) => {
       }
 
       if (!user) return res.status(401).json({ msg: 'Token non valido o utente non trovato'});
-       // Qui puoi fare un controllo extra:
+      
       const deviceExists = UserDevices.findOne({user: user.id, _id: req.cookies.deviceId })
-      console.log(deviceExists);
       if (!deviceExists) return res.status(401).json({ msg: 'Dispositivo non più valido'});
 
       if (roles.length && !roles.includes(user.role)) {

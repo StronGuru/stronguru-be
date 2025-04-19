@@ -201,7 +201,8 @@ router.post('/signup/professional', async (req, res) => {
 
         res.status(201).json({
             message: 'Registrazione professionista riuscita. Per favore controlla la tua email per verificare l\'account',
-            userId: professional._id
+            userId: professional._id,
+            activationKey: activationToken
         });
     } catch (err) {
 

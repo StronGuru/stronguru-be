@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const Professional = require('../models/discriminators/Professional');
 const auth = require('../middleware/auth');
 const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
+const UserDevices = require('../models/UserDevices');
+const UserSettings = require('../models/UserSettings');
 
 //##### GET #####
 /**
@@ -195,7 +197,7 @@ router.get('/professional/:id', async (req, res) => {
 
 
 // PUT - Aggiorna i dati modificabili del profesionista
-router.put('/professional/:id', auth('professional'), async (req, res) => {
+router.put('/professional/:id', async (req, res) => {
   try {
     const professionalId = req.params.id;
 
@@ -311,7 +313,7 @@ router.put('/professional/:id', auth('professional'), async (req, res) => {
  */
 
 // PUT - modifica password
-router.put('/professional/:id/password', auth('professional'), async (req, res) => {
+router.put('/professional/:id/password', async (req, res) => {
   try {
     const professionalId = req.params.id;
     const { oldPassword, newPassword } = req.body;
@@ -335,9 +337,10 @@ router.put('/professional/:id/password', auth('professional'), async (req, res) 
     }
 
     //gestione nuova password
-    const salt = await bcrypt.genSalt(10);
-    professional.password = await bcrypt.hash(newPassword, salt);
+    professional.password = newPassword;
     await professional.save();
+
+    await UserDevices.deleteMany({user: professionalId});
 
     res.status(200).json({ message: 'Profilo aggiornato con successo', professionalId });
   } catch (err) {
@@ -392,8 +395,13 @@ router.put('/professional/:id/password', auth('professional'), async (req, res) 
 
 
 //DELETE - Elimina un professionista
-router.delete('/professional/:id', auth('professional'), async (req, res) => {
+router.delete('/professional/:id', async (req, res) => {
   try {
+    const models = {
+      nutritionist: require('../models/Nutritionist'),
+      trainer: require('../models/Trainer'),
+      psychologist: require('../models/Psychologist')
+    };
     const professionalId = req.params.id;
     const { password } = req.body;
 
@@ -412,8 +420,23 @@ router.delete('/professional/:id', auth('professional'), async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Password errata. Eliminazione account annullata' });
     }
+     // Itera sulle specializzazioni ed elimina i documenti
+     for (let specializationName of professional.specializations) {
+      const normalized = specializationName.toLowerCase();
+      const Model = models[normalized];
+      if (Model) {
+        await Model.deleteMany({ professional: professional._id });
+        console.log(`Eliminati ${normalized} per il professional ${professional._id}`);
+      } else {
+        console.warn(`Modello per ${normalized} non trovato`);
+      }
+    }
 
     await Professional.findByIdAndDelete(professionalId);
+
+    await UserDevices.deleteMany({user: professionalId});
+
+    await UserSettings.deleteMany({user: professionalId});
 
     res.status(200).json({ message: 'Account professionista eliminato con successo' });
   } catch (err) {

@@ -7,6 +7,10 @@ const methodOverride = require('method-override');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 const passport = require('passport');
 const useragent = require('express-useragent');
+const corsConfig = require('./config/corsConfig');
+const cookieParser = require('cookie-parser');
+const authMiddleware = require('./middleware/auth'); // o come si chiama il tuo file
+
 
 
 const app = express();
@@ -15,19 +19,11 @@ const app = express();
 require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(useragent.express());
+app.use(cookieParser());
 
 app.use(methodOverride('_method'));
 
-const corsOptions = 
-    {
-        origin: 'http://localhost:4200',
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: true
-    }
-
-
-app.use(cors());
+app.use(cors(corsConfig));
 
 app.use(express.json());
 app.set('trust proxy', true);
@@ -70,13 +66,13 @@ const tokenAPI = require('./routes/token');
 app.use('/token', tokenAPI);
 
 const usersAPI = require('./routes/users');
-app.use('/users', usersAPI);
+app.use('/users',authMiddleware(), usersAPI);
 
 const professionalAPI = require('./routes/professionals');
-app.use('/professionals', professionalAPI);
+app.use('/professionals', authMiddleware(), professionalAPI);
 
 const userDevicesAPI = require('./routes/userDevices');
-app.use('/devices', userDevicesAPI);
+app.use('/devices', authMiddleware(), userDevicesAPI);
 
 
 // Porta e avvio server

@@ -238,7 +238,7 @@ router.post('/signup/professional', async (req, res) => {
  *               email:
  *                 type: string
  *                 description: L'email dell'utente
- *                 example: "utente@example.com"
+ *                 example: "user@example.com"
  *               password:
  *                 type: string
  *                 description: La password dell'utente
@@ -247,10 +247,6 @@ router.post('/signup/professional', async (req, res) => {
  *                 type: string
  *                 description: Il tipo di client che effettua la richiesta (mobile, web)
  *                 example: "mobile"
- *               deviceId:
- *                 type: string
- *                 description: ID del dispositivo da cui si effettua la richiesta
- *                 example: "device-1234-abc"
  *     responses:
  *       '200':
  *         description: Successo. Vengono restituiti i token di accesso e refresh.
@@ -323,7 +319,7 @@ router.post('/signup/professional', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, client, deviceId } = req.body;
+    const { email, password, client } = req.body;
 
     // Validazione di base
   if (!email || !password || !client) {
@@ -369,6 +365,7 @@ router.post('/login', async (req, res) => {
 
   let existingDevice;
 
+  const deviceId = req.cookies.deviceId;
   if (deviceId) {
     existingDevice = await UserDevices.findOne({ _id: deviceId, user: user._id });
   }
@@ -396,10 +393,22 @@ router.post('/login', async (req, res) => {
       existingDevice = userDevice;
     }
     
+    res.cookie('refreshToken', refreshToken, { httpOnly: true,
+      secure: true, // solo in HTTPS in prod
+      secure: process.env.NODE_ENV === 'production', // true solo in prod (HTTPS)
+      sameSite: 'Strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 giorni 
+      });
+    
+      res.cookie('deviceId', existingDevice._id.toString(), {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
 
     res.status(200).json({
         accessToken,
-        refreshToken,
         deviceId: existingDevice._id,
         user: {
           id: user._id,
@@ -420,22 +429,8 @@ router.post('/login', async (req, res) => {
  *     tags: [Auth]
  *     description: |
  *       Questo endpoint consente di ottenere un nuovo access token utilizzando un refresh token valido.
- *       Se il refresh token e il device ID sono corretti, viene restituito un nuovo access token.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               refreshToken:
- *                 type: string
- *                 description: Il refresh token dell'utente
- *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *               deviceId:
- *                 type: string
- *                 description: L'ID del dispositivo da cui si richiede il rinnovo del token
- *                 example: "device-1234-abc"
+ *       Se il refresh token e il device ID sono corretti, viene restituito un nuovo access token. Entrambi vengono
+ *       recuperati attraverso i cookies.
  *     responses:
  *       '200':
  *         description: Successo. Viene restituito un nuovo access token.
@@ -479,17 +474,19 @@ router.post('/login', async (req, res) => {
  *                   description: Dettagli dell'errore.
  */
 router.post('/refresh-token', async (req, res) => {
-  const { refreshToken, deviceId } = req.body;
+  try {
+  const refreshToken = req.cookies.refreshToken;
+  const deviceId  = req.cookies.deviceId;
+
 
   if (!refreshToken || !deviceId) {
     return res.status(400).json({ message: 'Token o device ID mancante.' });
   }
-
-  try {
-    const device = await UserDevices.findOne({ _id: deviceId, refreshToken });
-    if (!device) return res.status(403).json({ message: 'Token non valido.' });
-
+    
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    const device = await UserDevices.findOne({ _id: deviceId, user: decoded.id, refreshToken });
+    if (!device) return res.status(403).json({ message: 'Token non valido.' });
 
     const payload = {
       id: decoded.id,
@@ -498,16 +495,82 @@ router.post('/refresh-token', async (req, res) => {
     };
 
     const newAccessToken = generateAccessToken(payload);
+    const newRefreshToken = generateRefreshToken(payload);
 
+    device.refreshToken = newRefreshToken;
     // aggiorno il timestamp di accesso
     device.lastAccessed = new Date();
     await device.save();
 
+    res.cookie('refreshToken', newRefreshToken, { httpOnly: true,
+      secure: true, // solo in HTTPS in prod
+      secure: process.env.NODE_ENV === 'production', // true solo in prod (HTTPS)
+      sameSite: 'Strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 giorni 
+      });
+    
+      res.cookie('deviceId', device._id.toString(), {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
     return res.json({ accessToken: newAccessToken });
 
   } catch (err) {
-    return res.status(403).json({ message: 'Token non valido o scaduto.' });
+    return res.status(403).json({ message: 'Token non valido o scaduto.' + err});
   }
+});
+
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Effettua il logout dell'utente.
+ *     description: Rimuove il refresh token dal client e lo elimina dal database, effettuando il logout dell'utente.
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout effettuato con successo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Logout effettuato'
+ *       400:
+ *         description: Impossibile effettuare il logout, refresh token non trovato nel cookie.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Refresh token non trovato nel cookie.'
+ *       500:
+ *         description: Errore del server durante il logout.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'Errore del server.'
+ */
+router.post('/logout', async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  await UserDevices.findOneAndDelete({ refreshToken });
+  res.clearCookie('refreshToken');
+  res.status(200).json({ message: 'Logout effettuato' });
 });
 
 

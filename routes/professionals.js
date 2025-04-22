@@ -9,95 +9,20 @@ const UserSettings = require('../models/UserSettings');
 const { USER_ROLES } = require('../constants/userRoles');
 const authorizeRoles = require('../middleware/authorizedRoles');
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Professional:
- *       allOf:
- *       - $ref: '#/components/schemas/User'
- *       - type: object
- *         properties:
- *           specializations:
- *             type: array
- *             items:
- *               type: string
- *           contactEmail:
- *             type: string
- *           pIva:
- *             type: string
- *         example:
- *           _id: "64f9c9b3f2e7aa5f4d8c101a"
- *           firstName: "Mario"
- *           lastName: "Rossi"
- *           email: "mario@coach.com"
- *           role: "professional"
- *           gender: "male"
- *           dateOfBirth: "1988-07-22"
- *           phone: "‪+390112223344‬"
- *           specializations: ["trainer", "psychologist"]
- *           contactEmail: "mario@coach.com"
- *           pIva: "IT12345678901"
- */
-
-
 //##### GET #####
-/**
- * @swagger
- * /professionals/professional/{id}:
- *   get:
- *     summary: Recupera un professionista per ID (senza la password)
- *     description: Recupera i dettagli di un professionista escludendo il campo password.
- *     operationId: getProfessionalById
- *     tags:
- *       - Professional
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         description: L'ID del professionista da recuperare.
- *         schema:
- *           type: string
- *     responses:
- *       '200':
- *         description: Professionista recuperato con successo.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 _id:
- *                   type: string
- *                   description: L'ID del professionista.
- *                 firstName:
- *                   type: string
- *                   description: Nome del professionista.
- *                 lastName:
- *                   type: string
- *                   description: Cognome del professionista.
- *                 email:
- *                   type: string
- *                   description: Email del professionista.
- *                 role:
- *                   type: string
- *                   description: Ruolo del professionista (ad esempio, 'PROFESSIONAL').
- *                 phone:
- *                   type: string
- *                   description: Numero di telefono del professionista.
- *                 gender:
- *                   type: string
- *                   description: Genere del professionista.
- *                 dateOfBirth:
- *                   type: string
- *                   format: date
- *                   description: Data di nascita del professionista.
- *       '404':
- *         description: Professionista non trovato.
- *       '500':
- *         description: Errore interno del server.
- */
 
-// GET - Recupera un professionista per ID
+//GET all professionals - Admin only
+router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
+  try {
+      const professionals = await Professional.find().select('-password');
+      res.status(200).json(professionals);
+  } catch (err) {
+      console.error('Error retrieving professionals:', err);
+      res.status(500).json({ message: 'Server error'});
+  }
+});
+
+// GET one professional by ID
 router.get('/professional/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -116,160 +41,9 @@ router.get('/professional/:id', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /professionals:
- *   get:
- *     summary: Retrieve all registered professionals
- *     tags: [Professional]
- *     description: Returns a list of all professionals in the system. Admin access only.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of professionals successfully retrieved
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Professional'
- *       401:
- *         description: Unauthorized – Missing or invalid token
- *       403:
- *         description: Forbidden – Admin access required
- *       500:
- *         description: Server error
- */
-
-router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
-    try {
-        const professionals = await Professional.find().select('-password');
-        res.status(200).json(professionals);
-    } catch (err) {
-        console.error('Error retrieving professionals:', err);
-        res.status(500).json({ message: 'Server error'});
-    }
-});
-
-
-module.exports = router;
-
 // ##### PUT #####
-/**
- * @swagger
- * /professionals/professional/{id}:
- *   put:
- *     summary: Aggiorna i dati modificabili di un professionista (esclusa la password)
- *     tags:
- *       - Professional
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del professionista da aggiornare
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               firstName:
- *                 type: string
- *                 description: Nome del professionista
- *               lastName:
- *                 type: string
- *                 description: Cognome del professionista
- *               gender:
- *                 type: string
- *                 description: Genere
- *               phone:
- *                 type: string
- *                 description: Numero di telefono
- *               biography:
- *                 type: string
- *                 description: Biografia o descrizione
- *               profileImg:
- *                 type: string
- *                 description: URL immagine profilo
- *               socialLinks:
- *                 type: object
- *                 properties:
- *                   instagram:
- *                     type: string
- *                   facebook:
- *                     type: string
- *                   linkedin:
- *                     type: string
- *                   tiktok:
- *                     type: string
- *                   youtube:
- *                     type: string
- *                 description: Link ai social
- *               address:
- *                 type: object
- *                 properties:
- *                   street:
- *                     type: string
- *                   city:
- *                     type: string
- *                   cap:
- *                     type: string
- *                   province:
- *                     type: string
- *                   country:
- *                     type: string
- *                 description: Indirizzo del professionista
- *               specializations:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Specializzazioni (es. NUTRITIONIST, PSYCHOLOGIST...)
- *               contactEmail:
- *                 type: string
- *                 description: Email professionale per contatti
- *               contactPhone:
- *                 type: string
- *                 description: Numero di telefono per contatti
- *               languages:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Lingue parlate
- *               expStartDate:
- *                 type: string
- *                 format: date
- *                 description: Data inizio attività professionale
- *               professionalExp:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Esperienze professionali
- *               certifications:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Certificazioni ottenute
- *     responses:
- *       '200':
- *         description: Profilo aggiornato con successo
- *       '400':
- *         description: Nessun campo valido fornito per l'aggiornamento
- *       '403':
- *         description: Non autorizzato
- *       '404':
- *         description: Professionista non trovato
- *       '500':
- *         description: Errore del server
- */
 
-
-// PUT - Aggiorna i dati modificabili del profesionista
+// PUT update professional profile
 router.put('/professional/:id', async (req, res) => {
   try {
     const professionalId = req.params.id;
@@ -338,54 +112,7 @@ router.put('/professional/:id', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /professionals/professional/{id}/password:
- *   put:
- *    summary: Cambia la password del professionista
- *    tags:
- *      - Professional
- *    security:
- *      - bearerAuth: []
- *    parameters:
- *      - in: path
- *        name: id
- *        required: true
- *        schema:
- *          type: string
- *        description: ID del professionista
- *    requestBody:
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            type: object
- *            required:
- *              - oldPassword
- *              - newPassword
- *            properties:
- *              oldPassword:
- *                type: string
- *                description: Vecchia password del professionista
- *              newPassword:
- *                type: string
- *                description: Nuova password del professionista
- *    responses:
- *      '200':
- *        description: Password aggiornata con successo
- *      '400':
- *        description: Parametri mancanti
- *      '401':
- *        description: Vecchia password errata
- *      '403':
- *        description: Non autorizzato
- *      '404':
- *        description: Professionista non trovato
- *      '500':
- *        description: Errore del server
- */
-
-// PUT - modifica password
+// PUT update password
 router.put('/professional/:id/password', async (req, res) => {
   try {
     const professionalId = req.params.id;
@@ -423,51 +150,8 @@ router.put('/professional/:id/password', async (req, res) => {
 });
 
 //##### DELETE #####
-/**
- * @swagger
- * /professionals/professional/{id}:
- *   delete:
- *     summary: Elimina un account professionista (richiede conferma password)
- *     tags:
- *       - Professional
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del professionista da eliminare
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - password
- *             properties:
- *               password:
- *                 type: string
- *                 description: Password dell'account per conferma
- *     responses:
- *       '200':
- *         description: Account professionista eliminato con successo
- *       '400':
- *         description: Password mancante
- *       '401':
- *         description: Password errata
- *       '403':
- *         description: Non autorizzato
- *       '404':
- *         description: Professionista non trovato
- *       '500':
- *         description: Errore del server
- */
 
-
-//DELETE - Elimina un professionista
+//DELETE professional
 router.delete('/professional/:id', async (req, res) => {
   try {
     const models = {
@@ -493,7 +177,7 @@ router.delete('/professional/:id', async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Password errata. Eliminazione account annullata' });
     }
-     // Itera sulle specializzazioni ed elimina i documenti
+     // Delete specializations
      for (let specializationName of professional.specializations) {
       const normalized = specializationName.toLowerCase();
       const Model = models[normalized];
@@ -506,9 +190,7 @@ router.delete('/professional/:id', async (req, res) => {
     }
 
     await Professional.findByIdAndDelete(professionalId);
-
     await UserDevices.deleteMany({user: professionalId});
-
     await UserSettings.deleteMany({user: professionalId});
 
     res.status(200).json({ message: 'Account professionista eliminato con successo' });

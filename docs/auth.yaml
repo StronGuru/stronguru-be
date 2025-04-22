@@ -1,0 +1,119 @@
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user and return JWT tokens
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - client
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: secret123
+                client:
+                  type: string
+                  enum: [web, mobile]
+                  example: web
+      responses:
+        200:
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+        400:
+          description: Missing fields or terms not accepted
+        401:
+          description: Invalid credentials or account not verified
+        403:
+          description: Access denied for this client type
+        500:
+          description: Internal server error
+
+  /auth/signup/professional:
+    post:
+      summary: Register a new professional
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - acceptedTerms
+                - acceptedPrivacy
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                phone:
+                  type: string
+                acceptedTerms:
+                  type: boolean
+                acceptedPrivacy:
+                  type: boolean
+                specializations:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        201:
+          description: Professional registered successfully
+        400:
+          description: Invalid or missing registration fields
+        409:
+          description: Email already registered
+        500:
+          description: Server error during registration
+
+  /auth/refresh-token:
+    post:
+      summary: Generate a new access token using the refresh token
+      tags: [Auth]
+      responses:
+        200:
+          description: New access token issued
+        401:
+          description: Invalid or missing refresh token
+        500:
+          description: Server error
+
+  /auth/logout:
+    post:
+      summary: Log out the current user
+      tags: [Auth]
+      responses:
+        200:
+          description: Successfully logged out
+        500:
+          description: Server error during logout

@@ -1,112 +1,23 @@
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: API per la gestione dell'autenticazione e attivazione utenti
- */
-
 const express = require('express');
+const router = express.Router();
 const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const User = require('../models/User');
-const sendTemplateEmail = require("../config/emailService");
-const UserToken = require("../models/UserToken");
 require('dotenv').config();
-const { USER_ROLES } = require('../constants/userRoles');
-const Professional = require('../models/discriminators/Professional');
-const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
 const { default: mongoose } = require('mongoose');
+
+const User = require('../models/User');
+const Professional = require('../models/discriminators/Professional');
 const UserDevices = require('../models/UserDevices');
-const { generateAccessToken, generateRefreshToken } = require('../helpers/tokenUtils');
 const UserSettings = require('../models/UserSettings');
+const UserToken = require("../models/UserToken");
+const { USER_ROLES } = require('../constants/userRoles');
 
-const router = express.Router();
+const sendTemplateEmail = require("../config/emailService");
+const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
+const { generateAccessToken, generateRefreshToken } = require('../helpers/tokenUtils');
 
-
-/**
- * @swagger
- * /auth/signup/professional:
- *   post:
- *     summary: Registrazione di un nuovo professionista
- *     tags: [Auth]
- *     description: Crea un nuovo utente con ruolo "professional", assegna le specializzazioni e invia un'email di attivazione.
- *     requestBody:
- *       description: I dati del professionista da registrare
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - firstName
- *               - lastName
- *               - email
- *               - password
- *               - dateOfBirth
- *               - gender
- *               - phone
- *               - role
- *               - specializations
- *               - acceptedTerms
- *               - acceptedPrivacy
- *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *               dateOfBirth:
- *                 type: string
- *                 format: date
- *               gender:
- *                 type: string
- *                 enum: [male, female, other]
- *               phone:
- *                 type: string
- *               role:
- *                 type: string
- *                 enum: [professional]
- *               specializations:
- *                 type: array
- *                 items:
- *                   type: string
- *                   enum: [nutritionist, psychologist, trainer]
- *               pIva:
- *                 type: string
- *               contactEmail:
- *                 type: string
- *               contactPhone:
- *                 type: string
- *               address:
- *                 type: object
- *                 properties:
- *                   street:
- *                     type: string
- *                   city:
- *                     type: string
- *                   cap:
- *                     type: string
- *                   province:
- *                     type: string
- *                   country:
- *                     type: string
- *               acceptedTerms:
- *                 type: boolean
- *               acceptedPrivacy:
- *                 type: boolean
- *     responses:
- *       201:
- *         description: Registrazione riuscita
- *       400:
- *         description: Dati mancanti o invalidi
- *       500:
- *         description: Errore del server
- */
+// POST /signup/professional
 router.post('/signup/professional', async (req, res) => {
 
     let professional = null;
@@ -220,104 +131,7 @@ router.post('/signup/professional', async (req, res) => {
 });
 
 
-/**
- * @swagger
- * /auth/login:
- *   post:
- *     summary: Effettua il login per ottenere accesso al sistema
- *     tags: [Auth]
- *     description: |
- *       Questo endpoint consente agli utenti di effettuare il login fornendo l'email e la password.
- *       Se il login ha successo, viene restituito un nuovo access token e refresh token.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 description: L'email dell'utente
- *                 example: "user@example.com"
- *               password:
- *                 type: string
- *                 description: La password dell'utente
- *                 example: "password123"
- *               client:
- *                 type: string
- *                 description: Il tipo di client che effettua la richiesta (mobile, web)
- *                 example: "mobile"
- *     responses:
- *       '200':
- *         description: Successo. Vengono restituiti i token di accesso e refresh.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                   description: Il nuovo access token generato.
- *                 refreshToken:
- *                   type: string
- *                   description: Il nuovo refresh token generato.
- *                 deviceId:
- *                   type: string
- *                   description: L'ID del dispositivo per cui è stato generato il token.
- *                 user:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                       description: L'ID dell'utente.
- *                     email:
- *                       type: string
- *                       description: L'email dell'utente.
- *                     role:
- *                       type: string
- *                       description: Il ruolo dell'utente.
- *       '400':
- *         description: Parametri mancanti o credenziali non valide.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- *       '403':
- *         description: Il ruolo dell'utente non consente l'accesso da questo client.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- *       '401':
- *         description: Email non verificata.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- *       '500':
- *         description: Errore del server.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- */
+// POST /auth/login
 router.post('/login', async (req, res) => {
   try {
     const { email, password, client } = req.body;
@@ -348,8 +162,6 @@ router.post('/login', async (req, res) => {
             message: 'Per favore verifica la tua email prima di accedere' 
         });
     }
-
-  
 
     const payload = { 
         id: user.id,
@@ -422,58 +234,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /auth/refresh-token:
-  *   post:
- *     summary: Rinnova il token di accesso utilizzando il refresh token
- *     tags: [Auth]
- *     description: |
- *       Questo endpoint consente di ottenere un nuovo access token utilizzando un refresh token valido.
- *       Se il refresh token e il device ID sono corretti, viene restituito un nuovo access token. Entrambi vengono
- *       recuperati attraverso i cookies.
- *     responses:
- *       '200':
- *         description: Successo. Viene restituito un nuovo access token.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                   description: Il nuovo token di accesso generato.
- *       '400':
- *         description: Token o device ID mancanti.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- *       '403':
- *         description: Il token non è valido o è scaduto.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- *       '500':
- *         description: Errore del server.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   description: Dettagli dell'errore.
- */
+// POST /auth/refresh-token
 router.post('/refresh-token', async (req, res) => {
   try {
   const refreshToken = req.cookies.refreshToken;
@@ -524,48 +285,7 @@ router.post('/refresh-token', async (req, res) => {
 });
 
 
-/**
- * @swagger
- * /auth/logout:
- *   post:
- *     summary: Effettua il logout dell'utente.
- *     description: Rimuove il refresh token dal client e lo elimina dal database, effettuando il logout dell'utente.
- *     tags:
- *       - Auth
- *     security:
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Logout effettuato con successo.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: 'Logout effettuato'
- *       400:
- *         description: Impossibile effettuare il logout, refresh token non trovato nel cookie.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: 'Refresh token non trovato nel cookie.'
- *       500:
- *         description: Errore del server durante il logout.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: 'Errore del server.'
- */
+// POST /auth/logout
 router.post('/logout', async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 

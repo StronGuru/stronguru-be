@@ -338,8 +338,8 @@ router.post('/login', async (req, res) => {
     return res.status(403).json({ message: 'Solo gli atleti possono accedere da mobile.' });
   }
 
-  if (client === 'web' && user.role !== USER_ROLES.PROFESSIONAL) {
-    return res.status(403).json({ message: 'Solo i professionisti possono accedere da web: '  + user.role});
+  if (client === 'web' && ![USER_ROLES.PROFESSIONAL, USER_ROLES.ADMIN].includes(user.role)) {
+    return res.status(403).json({ message: 'Solo i professionisti o admin possono accedere da web: '  + user.role});
   }
 
     // Check if email is verified

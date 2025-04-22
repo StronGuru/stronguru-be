@@ -6,6 +6,40 @@ const auth = require('../middleware/auth');
 const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
 const UserDevices = require('../models/UserDevices');
 const UserSettings = require('../models/UserSettings');
+const { USER_ROLES } = require('../constants/userRoles');
+const authorizeRoles = require('../middleware/authorizedRoles');
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Professional:
+ *       allOf:
+ *       - $ref: '#/components/schemas/User'
+ *       - type: object
+ *         properties:
+ *           specializations:
+ *             type: array
+ *             items:
+ *               type: string
+ *           contactEmail:
+ *             type: string
+ *           pIva:
+ *             type: string
+ *         example:
+ *           _id: "64f9c9b3f2e7aa5f4d8c101a"
+ *           firstName: "Mario"
+ *           lastName: "Rossi"
+ *           email: "mario@coach.com"
+ *           role: "professional"
+ *           gender: "male"
+ *           dateOfBirth: "1988-07-22"
+ *           phone: "‪+390112223344‬"
+ *           specializations: ["trainer", "psychologist"]
+ *           contactEmail: "mario@coach.com"
+ *           pIva: "IT12345678901"
+ */
+
 
 //##### GET #####
 /**
@@ -81,6 +115,45 @@ router.get('/professional/:id', async (req, res) => {
     res.status(500).json({ message: 'Errore del server' });
   }
 });
+
+/**
+ * @swagger
+ * /professionals:
+ *   get:
+ *     summary: Retrieve all registered professionals
+ *     tags: [Professional]
+ *     description: Returns a list of all professionals in the system. Admin access only.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of professionals successfully retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Professional'
+ *       401:
+ *         description: Unauthorized – Missing or invalid token
+ *       403:
+ *         description: Forbidden – Admin access required
+ *       500:
+ *         description: Server error
+ */
+
+router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
+    try {
+        const professionals = await Professional.find().select('-password');
+        res.status(200).json(professionals);
+    } catch (err) {
+        console.error('Error retrieving professionals:', err);
+        res.status(500).json({ message: 'Server error'});
+    }
+});
+
+
+module.exports = router;
 
 // ##### PUT #####
 /**

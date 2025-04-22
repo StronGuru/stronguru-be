@@ -14,7 +14,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: './components/schemas/User'
+                  $ref: '#/components/schemas/User'
         401:
           description: Unauthorized – JWT is missing or invalid
         403:

@@ -120,4 +120,4 @@ components:
         deviceType:
           type: string
         isActive:
-          type: boolean    
+          type: boolean    

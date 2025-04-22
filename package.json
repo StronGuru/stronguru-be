@@ -9,6 +9,7 @@
     "dev": "nodemon index.js",
     "docs:validate": "swagger-cli validate ./docs/swagger.yaml",
     "docs:lint": "swagger-cli validate ./docs/swagger.yaml",
+    "docs:bundle": "swagger-cli bundle ./docs/swagger.yaml -o ./docs/swagger-bundled.yaml -t yaml",
     "docs:preview": "open http://localhost:8080/api-docs"
   },
   "keywords": [],

@@ -3,15 +3,16 @@ module.exports = {
     get: {
       summary: 'Activate a user account via token',
       tags: ['Token'],
-      description: 'Verifies the activation token, activates the user account, and deletes the token.',
+      description: 'Verifies the activation token, activates the user account, and deletes the token from the database.',
       parameters: [
         {
           name: 'token',
           in: 'path',
           required: true,
-          description: 'Activation token sent via email',
+          description: 'Activation token sent to the user via email',
           schema: {
             type: 'string',
+            example: 'd4f9a4c8a6bc4f4e9fd12345678abcde',
           },
         },
       ],

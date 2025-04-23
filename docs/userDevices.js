@@ -10,7 +10,7 @@ module.exports = {
           name: 'userId',
           required: true,
           description: 'ID of the user',
-          schema: { type: 'string' },
+          schema: { type: 'string', example: '6634567890abcdef12345678' },
         },
       ],
       responses: {
@@ -21,6 +21,18 @@ module.exports = {
               schema: {
                 type: 'array',
                 items: { $ref: '#/components/schemas/UserDevice' },
+                example: [
+                  {
+                    _id: '664567890abcdef123456789',
+                    user: '6634567890abcdef12345678',
+                    ipAddress: '192.168.1.10',
+                    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+                    deviceType: 'desktop',
+                    refreshToken: 'abc123token',
+                    isActive: true,
+                    lastAccessed: '2024-04-01T10:15:00Z',
+                  },
+                ],
               },
             },
           },
@@ -41,7 +53,7 @@ module.exports = {
           name: 'id',
           required: true,
           description: 'Device ID',
-          schema: { type: 'string' },
+          schema: { type: 'string', example: '664567890abcdef123456789' },
         },
       ],
       responses: {
@@ -54,7 +66,7 @@ module.exports = {
           },
         },
         404: { description: 'Device not found' },
-        500: { description: 'Server error' },
+        500: { description: 'Server error while retrieving the device' },
       },
     },
 
@@ -68,7 +80,7 @@ module.exports = {
           name: 'id',
           required: true,
           description: 'ID of the device to delete',
-          schema: { type: 'string' },
+          schema: { type: 'string', example: '664567890abcdef123456789' },
         },
       ],
       responses: {

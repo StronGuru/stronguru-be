@@ -50,6 +50,7 @@ module.exports = {
         500: { description: 'Internal server error' },
       },
     },
+
     put: {
       summary: 'Update professional profile (excluding password)',
       tags: ['Professional'],
@@ -67,7 +68,36 @@ module.exports = {
         required: true,
         content: {
           'application/json': {
-            schema: { $ref: '#/components/schemas/Professional' },
+            schema: {
+              type: 'object',
+              properties: {
+                firstName: { type: 'string', example: 'Mario' },
+                lastName: { type: 'string', example: 'Rossi' },
+                phone: { type: 'string', example: '3216549870' },
+                biography: {
+                  type: 'string',
+                  example: 'Certified nutritionist and trainer with 10 years of experience.',
+                },
+                specializations: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['nutritionist'],
+                },
+                contactEmail: { type: 'string', example: 'studio@gmail.com' },
+                contactPhone: { type: 'string', example: '3216549870' },
+                languages: { type: 'array', items: { type: 'string' }, example: ['en', 'it'] },
+                address: {
+                  type: 'object',
+                  properties: {
+                    street: { type: 'string', example: 'Via Roma 123' },
+                    city: { type: 'string', example: 'Milano' },
+                    province: { type: 'string', example: 'MI' },
+                    cap: { type: 'string', example: '20100' },
+                    country: { type: 'string', example: 'Italy' },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -79,6 +109,7 @@ module.exports = {
         500: { description: 'Internal server error' },
       },
     },
+
     delete: {
       summary: 'Delete professional account (requires password)',
       tags: ['Professional'],
@@ -102,7 +133,8 @@ module.exports = {
               properties: {
                 password: {
                   type: 'string',
-                  description: 'Confirmation password',
+                  example: 'password123',
+                  description: 'Current password to confirm account deletion',
                 },
               },
             },
@@ -142,8 +174,8 @@ module.exports = {
               type: 'object',
               required: ['oldPassword', 'newPassword'],
               properties: {
-                oldPassword: { type: 'string' },
-                newPassword: { type: 'string' },
+                oldPassword: { type: 'string', example: 'password123' },
+                newPassword: { type: 'string', example: 'newSecurePassword456' },
               },
             },
           },

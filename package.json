@@ -4,12 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "docs:validate": "swagger-cli validate ./docs/swagger.yaml",
-    "docs:lint": "swagger-cli validate ./docs/swagger.yaml",
-    "docs:bundle": "swagger-cli bundle ./docs/swagger.yaml -o ./docs/swagger-bundled.yaml -t yaml",
+    "docs:export": "node docs/scripts/dump-swagger.js",
+    "docs:validate": "npm run docs:export && swagger-cli validate ./docs/build/swagger-output.json",
     "docs:preview": "open http://localhost:8080/api-docs"
   },
   "keywords": [],
@@ -31,8 +29,7 @@
     "passport-jwt": "^4.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^11.1.0",
-    "yamljs": "^0.3.0"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7",

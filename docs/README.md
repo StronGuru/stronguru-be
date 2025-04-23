@@ -1,126 +1,135 @@
-📚 StronGuru API Documentation – Developer Guide
-Benvenuto/a nella documentazione modulare delle API di StronGuru.
-Questa guida ti aiuterà a navigare, estendere e mantenere Swagger in modo ordinato, professionale e scalabile.
+# 📚 StronGuru API – Developer Guide (JS Modular Swagger)
 
-📁 Struttura della cartella docs/
+Benvenuto/a nello sviluppo backend di StronGuru. Questa guida ti aiuterà a mantenere e validare la documentazione Swagger API con un’architettura modulare in JavaScript, facilmente estendibile e scalabile.
+
+## 📁 Struttura della cartella `docs/`
+```
 docs/
-├── swagger.yaml               # Entry point principale per Swagger
-├── users.yaml                 # Rotte /users
-├── auth.yaml                  # Login, registrazione, logout, refresh
-├── professionals.yaml         # Rotte /professionals (CRUD + password)
-├── athletes.yaml              # Rotte /athletes
-├── token.yaml                 # Attivazione account tramite token
-├── userDevices.yaml           # Rotte /devices
-└── components/
-    └── schemas.yaml           # Tutti gli schemi riutilizzabili (User, Professional, ecc.)
+├── swagger.js               # Entry point principale (esporta lo Swagger spec)
+├── auth.js                  # Rotte /auth (login, signup, logout, refresh)
+├── users.js                 # Rotte /users
+├── professionals.js         # Rotte /professionals (CRUD + password)
+├── athletes.js              # Rotte /athletes
+├── token.js                 # Attivazione account tramite token
+├── userDevices.js           # Rotte /devices
+├── components/
+│   └── schemas.js           # Schemi riutilizzabili (User, Professional, ecc.)
+└── scripts/
+    └── dump-swagger.js      # Script per esportare lo spec e validarlo
+```
 
-⚙️ Configurazione Swagger in Express
+## ⚙️ Configurazione Swagger in Express
 
-    Nel file config/swagger.js:
-        const swaggerUi = require('swagger-ui-express');
-        const YAML = require('yamljs');
-        const swaggerDocument = YAML.load('./docs/swagger.yaml');
+In `index.js`:
+```js
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
 
-        module.exports = {
-        swaggerUi,
-        swaggerSpec: swaggerDocument
-        };
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+```
+Apri la documentazione su:  
+👉 [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
-    Nel file index.js:
-        const { swaggerUi, swaggerSpec } = require('./config/swagger');
-        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+## ✍️ Come aggiungere nuove rotte o moduli
 
+1. Crea un nuovo file JS in `docs/`, es: `feedback.js`
+2. Esporta un oggetto contenente i path
+3. Importa e aggiungi in `docs/swagger.js`, dentro `paths: { ... }`:
+```js
+const feedback = require('./feedback');
 
-    Puoi ora aprire la documentazione su:
-    👉 http://localhost:8080/api-docs
+paths: {
+  ...users,
+  ...auth,
+  ...feedback,
+}
+```
 
+## 🧩 Come modificare o creare uno schema
 
-🧩 Come aggiungere una nuova rotta
-    1. Crea un nuovo file YAML, ad esempio: docs/feedback.yaml
+Aggiungi o modifica uno schema in `docs/components/schemas.js`. Esempio:
+```js
+MyModel: {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    name: { type: 'string' },
+  },
+}
+```
+Usalo in una risposta con:
+```js
+$ref: '#/components/schemas/MyModel'
+```
 
-    2. Aggiungi il riferimento in swagger.yaml:
+## 🔐 Autenticazione e Sicurezza
 
-    paths:
-    /feedback:
-        $ref: './feedback.yaml#/paths/~1feedback'
+Le rotte protette devono includere lo schema `bearerAuth`:
+```js
+security: [
+  { bearerAuth: [] }
+]
+```
+Nel `docs/swagger.js`, è già definito in `components.securitySchemes`.
 
-    Nota: usa ~1 al posto della / nei riferimenti a path YAML (/feedback → ~1feedback)
+## ✅ Validazione della documentazione Swagger
 
+Per validare la documentazione JS (modulare):
 
-✍️ Come aggiungere o modificare uno schema
-    Vai in docs/components/schemas.yaml e aggiungi il nuovo schema:
+1. Esporta lo Swagger in JSON:
+```bash
+npm run docs:export
+```
+2. Valida il file generato:
+```bash
+npm run docs:validate
+```
+Questo verifica che la struttura del file sia conforme a OpenAPI 3.
 
-        MyModel:
-        type: object
-        properties:
-            id:
-            type: string
-            name:
-            type: string
+## 🧪 Test locale tramite Swagger UI
 
-    Poi puoi riutilizzarlo in una risposta con:
+Avvia il server:
+```bash
+npm run dev
+```
+Vai su: [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
-        $ref: '#/components/schemas/MyModel'
+Clicca su **Authorize** e inserisci il token JWT nel formato:
+```
+Bearer <your_token>
+```
 
+## 💡 Best Practices per la documentazione
 
-🔐 Autenticazione e Sicurezza
-    Tutte le rotte protette usano bearerAuth come schema di sicurezza.
+✅ Mantieni ogni risorsa (auth, users, ecc.) in file separati  
+✅ Scrivi descrizioni, summary e tag in inglese  
+✅ Riutilizza gli schemi dove possibile (`$ref`)  
+✅ Valida frequentemente (`npm run docs:validate`)  
+✅ Non documentare inline dentro ai controller JS  
+✅ Usa sempre `bearerAuth` dove serve sicurezza  
 
-    Aggiungilo così dentro ogni path protetto:
+## 📦 Script npm utili
 
-        security:
-        - bearerAuth: []
+| Comando               | Cosa fa                                                |
+|-----------------------|--------------------------------------------------------|
+| `npm run dev`         | Avvia il server in modalità sviluppo                   |
+| `npm run docs:export` | Esporta Swagger spec da JS a `swagger-output.json`    |
+| `npm run docs:validate` | Valida Swagger spec esportato                         |
+| `npm run docs:preview`  | Apre Swagger UI su browser (`/api-docs`)             |
 
+## 📬 Domande frequenti
 
-🧪 Come testare localmente
-    Avvia il server con npm start
+| Obiettivo                           | Azione                                                        |
+|------------------------------------|---------------------------------------------------------------|
+| Aggiungere una nuova entità        | Crea `docs/<entità>.js` + importa in `swagger.js`             |
+| Documentare uno schema complesso   | Aggiungilo in `docs/components/schemas.js`                    |
+| Autenticazione con JWT             | Aggiungi `security: [{ bearerAuth: [] }]` alla rotta         |
+| Validare lo Swagger spec           | `npm run docs:validate`                                       |
+| Condividere lo spec esternamente   | Condividi `swagger-output.json` generato                      |
 
-    Vai su http://localhost:8080/api-docs
+## ✨ Prossimi step consigliati
 
-    Clicca su "Authorize" in alto a destra
-
-    Inserisci il token JWT nel formato: Bearer <your_token_here>
-
-
-✅ Validazione del file YAML
-    Per verificare che la documentazione sia corretta:
-
-    Installa swagger-cli (una volta sola):
-
-        nginx
-        npm install -g swagger-cli
-        
-    Valida:
-
-        swagger-cli validate docs/swagger.yaml
-
-
-💡 Best practices
-    Mantieni ogni risorsa (users, auth, ecc.) in un file YAML separato
-
-    Riutilizza gli schemi definiti in components/schemas.yaml
-
-    Scrivi tutte le descrizioni, summary, e tag in inglese
-
-    Evita la documentazione Swagger inline dentro ai file .js
-
-    Valida il file swagger.yaml regolarmente
-
-📬 Cosa fare se...
-
-    Obiettivo	Azione
-    Aggiungere una nuova entità	Crea docs/<entità>.yaml + aggiorna swagger.yaml
-    Documentare uno schema complesso	Aggiungi in docs/components/schemas.yaml
-    Gestire sicurezza con JWT	Aggiungi security: - bearerAuth: [] alla rotta
-    Testare da Swagger UI	Usa il pulsante "Authorize" con token JWT
-
-🔄 (Extra - Da fare in futuro)
-    Aggiungere example: nei requestBody e responses
-
-    Estendere con supporto multilingua Swagger (i18n)
-
-    Integrare validazione Swagger in CI/CD (GitHub Actions / GitLab)
-
-    Aggiungere script npm run docs:validate nel package.json
-
-✨ Per dubbi o suggerimenti, contatta il team backend o apri una PR sul branch swagger-cleanup.
+- Integrare `docs:validate` in CI/CD  
+- Aggiungere esempi a tutte le responses  
+- Internazionalizzazione della documentazione (i18n)  
+- Generare bundle pubblico se necessario (`swagger-cli bundle`)

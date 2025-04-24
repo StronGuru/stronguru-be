@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "docs:export": "node docs/scripts/dump-swagger.js",
+    "docs:validate": "npm run docs:export && swagger-cli validate ./docs/build/swagger-output.json",
+    "docs:preview": "open http://localhost:8080/api-docs"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +32,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "swagger-cli": "^4.0.4"
   }
 }

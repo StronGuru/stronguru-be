@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
 const methodOverride = require('method-override');
-const { swaggerUi, swaggerSpec } = require('./config/swagger');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
 const passport = require('passport');
 const useragent = require('express-useragent');
 const corsConfig = require('./config/corsConfig');
@@ -71,6 +72,12 @@ app.use('/users',authMiddleware(), usersAPI);
 const professionalAPI = require('./routes/professionals');
 app.use('/professionals', authMiddleware(), professionalAPI);
 
+<<<<<<< HEAD
+=======
+const clientUsersAPI = require('./routes/clientUsers');
+app.use('/clientUsers', authMiddleware(), clientUsersAPI);
+
+>>>>>>> develop
 const userDevicesAPI = require('./routes/userDevices');
 app.use('/devices', authMiddleware(), userDevicesAPI);
 

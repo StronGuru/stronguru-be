@@ -46,6 +46,10 @@ module.exports = {
               other: { type: 'string' },
             },
           },
+          ambassador: {
+            type: 'boolean',
+            description: 'Indicates whether the professional is an ambassador',
+          },
         },
       },
     ],

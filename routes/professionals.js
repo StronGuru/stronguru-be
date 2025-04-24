@@ -143,7 +143,7 @@ router.put('/professional/:id/password', async (req, res) => {
 
     await UserDevices.deleteMany({user: professionalId});
 
-    res.status(200).json({ message: 'Password successfully updated', professionalId });
+    res.status(200).json({ message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS, professionalId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });

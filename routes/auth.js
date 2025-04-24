@@ -230,28 +230,28 @@ router.post('/login', async (req, res) => {
 
     // Validazione di base
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email e password sono richiesti.' });
+    return res.status(400).json({ message: MESSAGES.AUTH.MISSING_CREDENTIALS });
   }
     
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: 'Nessun account registrato con questa email' });
+    if (!user) return res.status(400).json({ message: MESSAGES.AUTH.INVALID_CREDENTIALS });
 
     const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ msg: 'Credenziali non valide' });
+    if (!isMatch) return res.status(400).json({ message: MESSAGES.AUTH.INVALID_CREDENTIALS });
 
      // Controllo tipo dispositivo ↔ ruolo
   if (deviceType === 'mobile' && user.role !== USER_ROLES.USER) {
-    return res.status(403).json({ message: 'Solo gli user possono accedere da mobile.' });
+    return res.status(403).json({ message: MESSAGES.AUTH.ROLE_NOT_ALLOWED_MOBILE + ': ' + user.role });
   }
 
   if (deviceType === 'desktop' && ![USER_ROLES.PROFESSIONAL, USER_ROLES.ADMIN].includes(user.role)) {
-    return res.status(403).json({ message: 'Solo i professionisti possono accedere da desktop: '  + user.role});
+    return res.status(403).json({ message: MESSAGES.AUTH.ROLE_NOT_ALLOWED_DESKTOP + ': ' + user.role });
   }
 
     // Check if email is verified
     if (!user.isVerified) {
         return res.status(401).json({ 
-            message: 'Per favore verifica la tua email prima di accedere' 
+            message: MESSAGES.AUTH.EMAIL_NOT_VERIFIED + ': ' + user.email 
         });
     }
 
@@ -319,7 +319,7 @@ router.post('/login', async (req, res) => {
         }
       });
   } catch (err) {
-    res.status(500).json({ msg: 'Errore del server: ' + err });
+    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR + ' ' + err });
   }
 });
 
@@ -331,13 +331,13 @@ router.post('/refresh-token', async (req, res) => {
 
 
   if (!refreshToken || !deviceId) {
-    return res.status(400).json({ message: 'Token o device ID mancante.' });
+    return res.status(400).json({ message: MESSAGES.AUTH.TOKEN_MISSING });
   }
     
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
     const device = await UserDevices.findOne({ _id: deviceId, user: decoded.id, refreshToken });
-    if (!device) return res.status(403).json({ message: 'Token non valido.' });
+    if (!device) return res.status(403).json({ message: MESSAGES.AUTH.DEVICE_INVALID });
 
     const payload = {
       id: decoded.id,
@@ -369,7 +369,7 @@ router.post('/refresh-token', async (req, res) => {
     return res.json({ accessToken: newAccessToken });
 
   } catch (err) {
-    return res.status(403).json({ message: 'Token non valido o scaduto.' + err});
+    return res.status(403).json({ message: MESSAGES.TOKEN.INVALID_OR_EXPIRED + ' ' + err});
   }
 });
 
@@ -380,7 +380,7 @@ router.post('/logout', async (req, res) => {
 
   await UserDevices.findOneAndDelete({ refreshToken });
   res.clearCookie('refreshToken');
-  res.status(200).json({ message: 'Logout effettuato' });
+  res.status(200).json({ message: MESSAGES.AUTH.LOGOUT_SUCCESS });
 });
 
 

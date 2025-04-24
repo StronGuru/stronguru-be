@@ -14,6 +14,8 @@ const MESSAGES = {
       LOGOUT_SUCCESS: 'You have been successfully logged out.',
       LOGIN_SUCCESS: 'Login successful.',
       TOKEN_REFRESHED: 'Access token refreshed successfully.',
+      PASSWORD_RESET_SUCCESS: 'Password reset successfully.',
+      PASSWORD_RESET_EMAIL: 'Password reset email sent.'
     },
   
     SIGNUP: {

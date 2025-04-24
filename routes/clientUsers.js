@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const Athlete = require('../models/discriminators/Athlete');
+const ClientUser = require('../models/discriminators/ClientUser');
 const { USER_ROLES } = require('../constants/userRoles');
 const authorizeRoles = require('../middleware/authorizedRoles');
 
-//GET all athletes - Admin only
+//GET all clientUser - Admin only
 router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
     try {
-        const athletes = await Athlete.find().select('-password');
-        res.status(200).json(athletes);
+        const clientUser = await ClientUser.find().select('-password');
+        res.status(200).json(clientUser);
     } catch (err) {
-        console.error('Error retrieving athletes:', err);
+        console.error('Error retrieving clientUser:', err);
         res.status(500).json({ message: 'Server error'});
     }
 });

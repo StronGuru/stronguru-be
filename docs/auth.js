@@ -9,15 +9,10 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              required: ['email', 'password', 'client'],
+              required: ['email', 'password'],
               properties: {
                 email: { type: 'string', example: 'user@gmail.com' },
                 password: { type: 'string', example: 'password123' },
-                client: {
-                  type: 'string',
-                  enum: ['web', 'mobile'],
-                  example: 'web',
-                },
               },
             },
           },
@@ -38,9 +33,9 @@ module.exports = {
             },
           },
         },
-        400: { description: 'Missing email, password, or client' },
+        400: { description: 'Missing email or password' },
         401: { description: 'Invalid credentials or unverified account' },
-        403: { description: 'Access denied for this client type' },
+        403: { description: 'Access denied for this device type' },
         500: { description: 'Internal server error' },
       },
     },
@@ -63,7 +58,6 @@ module.exports = {
                 'password',
                 'acceptedTerms',
                 'acceptedPrivacy',
-                'role',
                 'specializations',
               ],
               properties: {
@@ -94,10 +88,6 @@ module.exports = {
                   items: { type: 'string' },
                   example: ['nutritionist'],
                 },
-                role: {
-                  type: 'string',
-                  example: 'professional',
-                },
               },
             },
           },
@@ -110,6 +100,112 @@ module.exports = {
         500: { description: 'Server error during registration' },
       },
     },
+  },
+
+  '/auth/signup/user': {
+    post: {
+      summary: 'Register a new user (ClientUser)',
+      tags: ['Auth'],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: [
+                'firstName',
+                'lastName',
+                'email',
+                'password',
+                'acceptedTerms',
+                'acceptedPrivacy',
+                'dateOfBirth',
+                'gender',
+                'phone'
+              ],
+              properties: {
+                firstName: { type: 'string', example: 'Luca' },
+                lastName: { type: 'string', example: 'Bianchi' },
+                email: { type: 'string', example: 'luca.bianchi@example.com' },
+                password: { type: 'string', example: 'password123' },
+                dateOfBirth: { type: 'string', format: 'date', example: '1995-06-15' },
+                gender: { type: 'string', example: 'male' },
+                phone: { type: 'string', example: '+393334445556' },
+                acceptedTerms: { type: 'boolean', example: true },
+                acceptedPrivacy: { type: 'boolean', example: true }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        201: {
+          description: 'User registered successfully. Activation email sent.',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: {
+                    type: 'string',
+                    example: 'Registrazione user riuscita. Per favore controlla la tua email per verificare l\'account'
+                  },
+                  userId: {
+                    type: 'string',
+                    example: '661e2b8f67e4fc5c9dfc9a91'
+                  },
+                  activationKey: {
+                    type: 'string',
+                    example: 'a3fdd5bc8ef3f542e10a1c2d4a0c4f2b'
+                  }
+                }
+              }
+            }
+          }
+        },
+        400: {
+          description: 'Missing required fields or validation error',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'È necessario accettare termini e privacy policy' },
+                  error: { type: 'string', example: 'Errore nella registrazione dello user' }
+                }
+              }
+            }
+          }
+        },
+        409: {
+          description: 'User already exists',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Utente già registrato con questa email' }
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Server error during registration',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Errore nella registrazione dello user' },
+                  error: { type: 'string', example: 'Unexpected error' }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   },
 
   '/auth/refresh-token': {

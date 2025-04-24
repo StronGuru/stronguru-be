@@ -9,7 +9,7 @@ docs/
 ├── auth.js                  # Rotte /auth (login, signup, logout, refresh)
 ├── users.js                 # Rotte /users
 ├── professionals.js         # Rotte /professionals (CRUD + password)
-├── athletes.js              # Rotte /athletes
+├── clientUsers.js              # Rotte /clientUsers
 ├── token.js                 # Attivazione account tramite token
 ├── userDevices.js           # Rotte /devices
 ├── components/

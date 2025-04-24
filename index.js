@@ -72,8 +72,8 @@ app.use('/users',authMiddleware(), usersAPI);
 const professionalAPI = require('./routes/professionals');
 app.use('/professionals', authMiddleware(), professionalAPI);
 
-const athletesAPI = require('./routes/athletes');
-app.use('/athletes', authMiddleware(), athletesAPI);
+const clientUsersAPI = require('./routes/clientUsers');
+app.use('/clientUsers', authMiddleware(), clientUsersAPI);
 
 const userDevicesAPI = require('./routes/userDevices');
 app.use('/devices', authMiddleware(), userDevicesAPI);

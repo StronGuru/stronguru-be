@@ -1,7 +1,7 @@
 const users = require('./users');
 const auth = require('./auth');
 const professionals = require('./professionals');
-const athletes = require('./athletes');
+const clientUsers = require('./clientUsers');
 const token = require('./token');
 const userDevices = require('./userDevices');
 const schemas = require('./components/schemas');
@@ -23,7 +23,7 @@ module.exports = {
     ...users,
     ...auth,
     ...professionals,
-    ...athletes,
+    ...clientUsers,
     ...token,
     ...userDevices,
   },

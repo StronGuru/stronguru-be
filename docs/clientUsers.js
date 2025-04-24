@@ -1,27 +1,27 @@
 module.exports = {
-  '/athletes': {
+  '/clientUsers': {
     get: {
-      summary: 'Retrieve all registered athletes',
-      tags: ['Athlete'],
-      description: 'Returns a list of all users with the "athlete" role. Admin access only.',
+      summary: 'Retrieve all registered clientUsers',
+      tags: ['ClientUser'],
+      description: 'Returns a list of all users with the "user" role. Admin access only.',
       security: [{ bearerAuth: [] }],
       responses: {
         200: {
-          description: 'List of athletes successfully retrieved',
+          description: 'List of clientUsers successfully retrieved',
           content: {
             'application/json': {
               schema: {
                 type: 'array',
                 items: {
-                  $ref: '#/components/schemas/Athlete',
+                  $ref: '#/components/schemas/clientUser',
                 },
                 example: [
                   {
                     _id: '6634567890abcdef12345678',
                     firstName: 'Anna',
                     lastName: 'Bianchi',
-                    email: 'athlete1@example.com',
-                    role: 'athlete',
+                    email: 'clientUser1@example.com',
+                    role: 'user',
                     dateOfBirth: '1995-04-10',
                     gender: 'female',
                     phone: '3216549871',

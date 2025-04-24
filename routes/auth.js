@@ -2,20 +2,18 @@ const express = require('express');
 const router = express.Router();
 const crypto = require("crypto");
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
-require('dotenv').config();
-const { default: mongoose } = require('mongoose');
-
 const User = require('../models/User');
-const Professional = require('../models/discriminators/Professional');
-const UserDevices = require('../models/UserDevices');
-const UserSettings = require('../models/UserSettings');
-const UserToken = require("../models/UserToken");
-const { USER_ROLES } = require('../constants/userRoles');
-
 const sendTemplateEmail = require("../config/emailService");
+const UserToken = require("../models/UserToken");
+require('dotenv').config();
+const { USER_ROLES } = require('../constants/userRoles');
+const Professional = require('../models/discriminators/Professional');
+const ClientUser = require('../models/discriminators/ClientUser');
 const { filterValidSpecializations, assignSpecToProfessional } = require('../helpers/SpecValidation');
+const UserDevices = require('../models/UserDevices');
 const { generateAccessToken, generateRefreshToken } = require('../helpers/tokenUtils');
+const UserSettings = require('../models/UserSettings');
+
 
 // POST /signup/professional
 router.post('/signup/professional', async (req, res) => {
@@ -31,7 +29,6 @@ router.post('/signup/professional', async (req, res) => {
             dateOfBirth, 
             gender, 
             phone, 
-            role, 
             specializations,
             taxCode,
             pIva,
@@ -41,10 +38,6 @@ router.post('/signup/professional', async (req, res) => {
             acceptedTerms,
             acceptedPrivacy
         } = req.body;
-
-        if(role !== USER_ROLES.PROFESSIONAL) {
-            return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
-        }
 
         // Verifica se l'utente esiste già
         const existingUser = await User.findOne({ email });
@@ -72,7 +65,7 @@ router.post('/signup/professional', async (req, res) => {
             dateOfBirth, 
             gender, 
             phone, 
-            role,
+            role: USER_ROLES.PROFESSIONAL,
             specializations: validSpecializations,
             taxCode,
             pIva,
@@ -84,6 +77,10 @@ router.post('/signup/professional', async (req, res) => {
         });
 
         await professional.save();
+
+        if(professional.role !== USER_ROLES.PROFESSIONAL) {
+          return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
+      }
 
         await new UserSettings({
           user: professional._id
@@ -130,15 +127,109 @@ router.post('/signup/professional', async (req, res) => {
     }
 });
 
+// POST /signup/user
+router.post('/signup/user', async (req, res) => {
+
+  let clientUser = null;
+
+  try {
+      const { 
+          firstName, 
+          lastName, 
+          email, 
+          password, 
+          dateOfBirth,
+          gender, 
+          phone,
+          acceptedTerms,
+          acceptedPrivacy
+      } = req.body;
+
+      
+
+      // Verifica se l'utente esiste già
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+          return res.status(400).json({ message: 'Utente già registrato con questa email' });
+      }
+
+
+      if (!acceptedTerms || !acceptedPrivacy) {
+          return res.status(400).json({ message: 'È necessario accettare termini e privacy policy'});
+      }
+
+      clientUser = new ClientUser({
+          firstName,
+          lastName, 
+          email, 
+          password, 
+          dateOfBirth, 
+          gender, 
+          phone, 
+          acceptedTerms,
+          acceptedPrivacy
+      });
+
+      await clientUser.save();
+
+      if(clientUser.role !== USER_ROLES.USER) {
+        return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
+    }
+
+      await new UserSettings({
+        user: clientUser._id
+      }).save();
+
+      const activationToken = crypto.randomBytes(32).toString("hex");
+
+      await new UserToken({
+          userId: clientUser._id,
+          token: activationToken,
+          type: "activation",
+      }).save();
+
+      await sendTemplateEmail({
+        to: clientUser.email,
+        templateKey: 'REGISTRATION',
+        dynamicData: {
+          activationToken: activationToken
+        }
+      })
+
+      console.log(`Email inviata a: ${clientUser.email}, con Token: ${activationToken.slice(0, 5)}...`);
+
+      res.status(201).json({
+          message: 'Registrazione user riuscita. Per favore controlla la tua email per verificare l\'account',
+          userId: clientUser._id,
+          activationKey: activationToken
+      });
+  } catch (err) {
+
+      if (clientUser) {
+          await ClientUser.deleteOne({ _id: clientUser._id }); // Rimuove il ClientUser creato
+          await UserToken.deleteOne({userId: clientUser._id});
+      }
+      console.error('Error durante la registrazione:', err);
+
+      res.status(400).json({
+          message: 'Errore nella registrazione dello user',
+          error: err.message
+      });
+  }
+});
+
 
 // POST /auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, client } = req.body;
+    const { email, password} = req.body;
+    const deviceType = req.useragent.isMobile || req.useragent.isTablet
+  ? 'mobile'
+  : 'desktop';
 
     // Validazione di base
-  if (!email || !password || !client) {
-    return res.status(400).json({ message: 'Email, password e client sono richiesti.' });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email e password sono richiesti.' });
   }
     
     const user = await User.findOne({ email });
@@ -147,13 +238,13 @@ router.post('/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ msg: 'Credenziali non valide' });
 
-     // Controllo client ↔ ruolo
-  if (client === 'mobile' && user.role !== USER_ROLES.ATHLETE) {
-    return res.status(403).json({ message: 'Solo gli atleti possono accedere da mobile.' });
+     // Controllo tipo dispositivo ↔ ruolo
+  if (deviceType === 'mobile' && user.role !== USER_ROLES.USER) {
+    return res.status(403).json({ message: 'Solo gli user possono accedere da mobile.' });
   }
 
-  if (client === 'web' && ![USER_ROLES.PROFESSIONAL, USER_ROLES.ADMIN].includes(user.role)) {
-    return res.status(403).json({ message: 'Solo i professionisti o admin possono accedere da web: '  + user.role});
+  if (deviceType === 'desktop' && ![USER_ROLES.PROFESSIONAL, USER_ROLES.ADMIN].includes(user.role)) {
+    return res.status(403).json({ message: 'Solo i professionisti possono accedere da desktop: '  + user.role});
   }
 
     // Check if email is verified
@@ -163,18 +254,15 @@ router.post('/login', async (req, res) => {
         });
     }
 
+  
+
     const payload = { 
         id: user.id,
         role: user.role,
-        client: client };
+        deviceType: deviceType };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
-    const deviceType = req.useragent.isMobile
-  ? 'mobile'
-  : req.useragent.isTablet
-  ? 'tablet'
-  : 'desktop';
 
   let existingDevice;
 
@@ -253,7 +341,7 @@ router.post('/refresh-token', async (req, res) => {
     const payload = {
       id: decoded.id,
       role: decoded.role,
-      client: decoded.client
+      deviceType: decoded.deviceType
     };
 
     const newAccessToken = generateAccessToken(payload);

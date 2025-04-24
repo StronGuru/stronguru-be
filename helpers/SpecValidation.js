@@ -34,7 +34,7 @@ async function assignSpecToProfessional(specializations = [], professionalId) {
                 console.log(Model);
 
                 if (!Model) {
-                    console.warn(`Specializzazione non gestita: ${specialization}`);
+                    console.warn(`${MESSAGES.SIGNUP.INVALID_SPECIALIZATION}: ${specialization}`);
                     continue;
                 }
 
@@ -42,7 +42,7 @@ async function assignSpecToProfessional(specializations = [], professionalId) {
                 if (!exists) {
                     await new Model({ professional: professionalId}).save();
                 } else {
-                    console.log(`Già esistente: ${specialization} per professional ${professionalId}`);
+                    console.log(`Already exists: ${specialization} for professional ${professionalId}`);
                 }
             }
 

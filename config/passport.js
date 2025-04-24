@@ -2,6 +2,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const mongoose = require('mongoose');
 const User = require('../models/User');
+const MESSAGES = require('../constants/messages');
 
 //già presente in index.js - Superfluo? - Ms
 require('dotenv').config(); // Per leggere le variabili d'ambiente
@@ -19,7 +20,7 @@ module.exports = (passport) => {
         if (user) return done(null, user);
         return done(null, false);
       } catch (err) {
-        console.error('Errore durante la verifica JWT', err) //per facilitare il debug - Ms
+        console.error(MESSAGES.GENERAL.SERVER_ERROR, err)
         return done(err, false);
       }
     })

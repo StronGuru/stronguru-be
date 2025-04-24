@@ -13,6 +13,7 @@ const { filterValidSpecializations, assignSpecToProfessional } = require('../hel
 const UserDevices = require('../models/UserDevices');
 const { generateAccessToken, generateRefreshToken } = require('../helpers/tokenUtils');
 const UserSettings = require('../models/UserSettings');
+const MESSAGES = require('../constants/messages');
 
 
 // POST /signup/professional
@@ -42,7 +43,7 @@ router.post('/signup/professional', async (req, res) => {
         // Verifica se l'utente esiste già
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Utente già registrato con questa email' });
+            return res.status(400).json({ message: MESSAGES.SIGNUP.EMAIL_IN_USE });
         }
 
 
@@ -50,11 +51,11 @@ router.post('/signup/professional', async (req, res) => {
         console.log("specializzazioni valide: " + validSpecializations)
 
         if (validSpecializations.length === 0) {
-            return res.status(400).json({ message: 'Nessuna specializzazione valida fornita' });
+            return res.status(400).json({ message: MESSAGES.SIGNUP.INVALID_SPECIALIZATION });
           }
 
         if (!acceptedTerms || !acceptedPrivacy) {
-            return res.status(400).json({ message: 'È necessario accettare termini e privacy policy'});
+            return res.status(400).json({ message: MESSAGES.SIGNUP.MISSING_TERMS });
         }
 
         professional = new Professional({
@@ -79,7 +80,7 @@ router.post('/signup/professional', async (req, res) => {
         await professional.save();
 
         if(professional.role !== USER_ROLES.PROFESSIONAL) {
-          return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
+          return res.status(400).json({ message: MESSAGES.SIGNUP.WRONG_ROLE + ': ' + role });
       }
 
         await new UserSettings({
@@ -108,7 +109,7 @@ router.post('/signup/professional', async (req, res) => {
         console.log(`Email inviata a: ${professional.email}, con Token: ${activationToken.slice(0, 5)}...`);
 
         res.status(201).json({
-            message: 'Registrazione professionista riuscita. Per favore controlla la tua email per verificare l\'account',
+            message: MESSAGES.SIGNUP.SUCCESS_PROFESSIONAL,
             userId: professional._id,
             activationKey: activationToken
         });
@@ -118,10 +119,10 @@ router.post('/signup/professional', async (req, res) => {
             await Professional.deleteOne({ _id: professional._id }); // Rimuove il professional creato
             await UserToken.deleteOne({userId: professional._id});
         }
-        console.error('Error durante la registrazione:', err);
+        console.error('Signup error:', err);
 
         res.status(400).json({
-            message: 'Errore nella registrazione del professionista',
+            message: MESSAGES.GENERAL.SERVER_ERROR,
             error: err.message
         });
     }
@@ -150,12 +151,12 @@ router.post('/signup/user', async (req, res) => {
       // Verifica se l'utente esiste già
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-          return res.status(400).json({ message: 'Utente già registrato con questa email' });
+          return res.status(400).json({ message: MESSAGES.SIGNUP.EMAIL_IN_USE });
       }
 
 
       if (!acceptedTerms || !acceptedPrivacy) {
-          return res.status(400).json({ message: 'È necessario accettare termini e privacy policy'});
+          return res.status(400).json({ message: MESSAGES.SIGNUP.MISSING_TERMS });
       }
 
       clientUser = new ClientUser({
@@ -173,7 +174,7 @@ router.post('/signup/user', async (req, res) => {
       await clientUser.save();
 
       if(clientUser.role !== USER_ROLES.USER) {
-        return res.status(400).json({ message: 'Impossibile proseguire con la registrazione: RUOLO ERRATO PER LA SEGUENTE REGISTRAZIONE -> ' + role });
+        return res.status(400).json({ message: MESSAGES.SIGNUP.WRONG_ROLE + ': ' + role });
     }
 
       await new UserSettings({
@@ -199,7 +200,7 @@ router.post('/signup/user', async (req, res) => {
       console.log(`Email inviata a: ${clientUser.email}, con Token: ${activationToken.slice(0, 5)}...`);
 
       res.status(201).json({
-          message: 'Registrazione user riuscita. Per favore controlla la tua email per verificare l\'account',
+          message: MESSAGES.SIGNUP.SUCCESS_USER,
           userId: clientUser._id,
           activationKey: activationToken
       });
@@ -209,10 +210,10 @@ router.post('/signup/user', async (req, res) => {
           await ClientUser.deleteOne({ _id: clientUser._id }); // Rimuove il ClientUser creato
           await UserToken.deleteOne({userId: clientUser._id});
       }
-      console.error('Error durante la registrazione:', err);
+      console.error('Signup error:', err);
 
       res.status(400).json({
-          message: 'Errore nella registrazione dello user',
+          message: MESSAGES.GENERAL.SERVER_ERROR,
           error: err.message
       });
   }

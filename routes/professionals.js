@@ -8,6 +8,7 @@ const UserDevices = require('../models/UserDevices');
 const UserSettings = require('../models/UserSettings');
 const { USER_ROLES } = require('../constants/userRoles');
 const authorizeRoles = require('../middleware/authorizedRoles');
+const MESSAGES = require('../constants/messages');
 
 //##### GET #####
 
@@ -18,7 +19,7 @@ router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
       res.status(200).json(professionals);
   } catch (err) {
       console.error('Error retrieving professionals:', err);
-      res.status(500).json({ message: 'Server error'});
+      res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
   }
 });
 
@@ -31,13 +32,13 @@ router.get('/professional/:id', async (req, res) => {
     const professional = await Professional.findById(id).select('-password'); // '-password' esclude la password
 
     if (!professional) {
-      return res.status(404).json({ message: 'Professionista non trovato' });
+      return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
     }
 
     res.status(200).json(professional);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Errore del server' });
+    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
   }
 });
 
@@ -50,7 +51,7 @@ router.put('/professional/:id', async (req, res) => {
 
     //verifica che l'utente stia modificando se stesso
     if (req.user._id.toString() !== professionalId) {
-      return res.status(403).json({ message: 'Non autorizzato a modificare questo profilo' });
+      return res.status(403).json({ message: MESSAGES.GENERAL.UNAUTHORIZED_ACCESS });
     }
 
     const updatableFields = {
@@ -74,11 +75,11 @@ router.put('/professional/:id', async (req, res) => {
     //se nessun campo valido è presente --> errore 400
     const hasAtLeastOneField = Object.values(updatableFields).some(value=> value !== undefined);
     if (!hasAtLeastOneField) {
-      return res.status(400).json({ message: 'Nessun campo valido fornito' });
+      return res.status(400).json({ message: MESSAGES.VALIDATION.NO_VALID_FIELDS });
     }
 
     const professional = await Professional.findById(professionalId);
-    if (!professional) return res.status(404).json({ message: 'Professionista non trovato' });
+    if (!professional) return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
 
     //aggiorna solo i campi presenti nel body
     if (firstName) professional.firstName = firstName;
@@ -105,10 +106,10 @@ router.put('/professional/:id', async (req, res) => {
 
     await professional.save();
 
-    res.status(200).json({ message: 'Profilo aggiornato con successo', professionalId });
+    res.status(200).json({ message: 'Profile successfully updated', professionalId });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Errore durante l'aggiornamento del profilo" });
+    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
   }
 });
 
@@ -119,33 +120,33 @@ router.put('/professional/:id/password', async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: 'Fornire la vecchia password e la nuova password' });
+      return res.status(400).json({ message: MESSAGES.VALIDATION.MISSING_PASSWORD });
     }
 
     //verifica che l'utente stia modificando se stesso
     if (req.user._id.toString() !== professionalId) {
-      return res.status(403).json({ message: 'Non autorizzato a modificare questo profilo' });
+      return res.status(403).json({ message: MESSAGES.GENERAL.UNAUTHORIZED_ACCESS });
     }
 
     const professional = await Professional.findById(professionalId);
-    if (!professional) return res.status(404).json({ message: 'Professionista non trovato' });
+    if (!professional) return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
 
-    //verifica vecchia password
+    //verify old password
     const isMatch = await bcrypt.compare(oldPassword, professional.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Vecchia password non corretta' });
+      return res.status(401).json({ message: MESSAGES.VALIDATION.PASSWORD_MISMATCH });
     }
 
-    //gestione nuova password
+    //new password
     professional.password = newPassword;
     await professional.save();
 
     await UserDevices.deleteMany({user: professionalId});
 
-    res.status(200).json({ message: 'Profilo aggiornato con successo', professionalId });
+    res.status(200).json({ message: 'Password successfully updated', professionalId });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Errore durante l'aggiornamento del profilo" });
+    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
   }
 });
 
@@ -163,19 +164,19 @@ router.delete('/professional/:id', async (req, res) => {
     const { password } = req.body;
 
     if (!password) {
-      return res.status(400).json({ message: "La password è richiesta per eliminare l'account" });
+      return res.status(400).json({ message: MESSAGES.VALIDATION.MISSING_PASSWORD });
     }
 
     if (req.user._id.toString() !== professionalId) {
-      return res.status(403).json({ message: 'Non autorizzato a eliminare questo profilo' });
+      return res.status(403).json({ message: MESSAGES.GENERAL.UNAUTHORIZED_ACCESS });
     }
 
     const professional = await Professional.findById(professionalId);
-    if (!professional) return res.status(404).json({ message: 'Professionista non trovato' });
+    if (!professional) return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
 
     const isMatch = await bcrypt.compare(password, professional.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Password errata. Eliminazione account annullata' });
+      return res.status(401).json({ message: MESSAGES.VALIDATION.PASSWORD_MISMATCH });
     }
      // Delete specializations
      for (let specializationName of professional.specializations) {
@@ -183,9 +184,9 @@ router.delete('/professional/:id', async (req, res) => {
       const Model = models[normalized];
       if (Model) {
         await Model.deleteMany({ professional: professional._id });
-        console.log(`Eliminati ${normalized} per il professional ${professional._id}`);
+        console.log(`Eliminated ${normalized} for professional ${professional._id}`);
       } else {
-        console.warn(`Modello per ${normalized} non trovato`);
+        console.warn(`Model for specialization "${normalized}" not found`);
       }
     }
 
@@ -193,10 +194,10 @@ router.delete('/professional/:id', async (req, res) => {
     await UserDevices.deleteMany({user: professionalId});
     await UserSettings.deleteMany({user: professionalId});
 
-    res.status(200).json({ message: 'Account professionista eliminato con successo' });
+    res.status(200).json({ message: MESSAGES.GENERAL.ACCOUNT_DELETED });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Errore durante l'eliminazione dell'account" });
+    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
   }
 });
 

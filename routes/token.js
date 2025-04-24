@@ -8,22 +8,22 @@ router.get("/activate/:token", async (req, res) => {
     try {
         const { token } = req.params;
 
-        // Controlla se il token esiste nel DB
+        // Check if token exists and is for activation
         const tokenEntry = await UserToken.findOne({ token, type: "activation" });
         if (!tokenEntry) {
-            return res.status(400).json({ message: "Token non valido o scaduto" });
+            return res.status(400).json({ message: MESSAGES.TOKEN.INVALID_OR_EXPIRED });
         }
 
-        // Attiva l'utente
+        // Activate user
         await User.findByIdAndUpdate(tokenEntry.userId, { isVerified: true });
 
-        // Rimuovi il token dopo l'attivazione
+        // Delete token after use
         await UserToken.findByIdAndDelete(tokenEntry._id);
 
-        res.json({ message: "Account attivato con successo!" });
+        res.json({ message: MESSAGES.TOKEN.ACTIVATION_SUCCESS });
     } catch (err) {
         console.error("Errore attivazione:", err);
-        res.status(500).json({ message: "Errore nell'attivazione dell'account" });
+        res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
     }
 });
 

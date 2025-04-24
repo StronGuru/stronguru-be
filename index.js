@@ -72,12 +72,9 @@ app.use('/users',authMiddleware(), usersAPI);
 const professionalAPI = require('./routes/professionals');
 app.use('/professionals', authMiddleware(), professionalAPI);
 
-<<<<<<< HEAD
-=======
 const clientUsersAPI = require('./routes/clientUsers');
 app.use('/clientUsers', authMiddleware(), clientUsersAPI);
 
->>>>>>> develop
 const userDevicesAPI = require('./routes/userDevices');
 app.use('/devices', authMiddleware(), userDevicesAPI);
 

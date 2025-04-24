@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const UserToken = require("../models/UserToken");
+const MESSAGES = require('../constants/messages');
 
 // GET /token/activate/:token
 router.get("/activate/:token", async (req, res) => {

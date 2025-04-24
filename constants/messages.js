@@ -24,7 +24,8 @@ const MESSAGES = {
       INVALID_SPECIALIZATION: 'No valid specialization was provided.',
       WRONG_ROLE: 'Invalid role specified for this signup type.',
       SUCCESS_USER: 'User account created successfully. Please check your email to activate it.',
-      SUCCESS_PROFESSIONAL: 'Professional account created successfully. Please verify via email.'
+      SUCCESS_PROFESSIONAL: 'Professional account created successfully. Please verify via email.',
+      AMBASSADOR_STATUS_UPDATED: (value) => `Ambassador status has been updated to ${value ? 'active' : 'inactive'}.`
     },
   
     VALIDATION: {
@@ -32,7 +33,8 @@ const MESSAGES = {
       PASSWORD_MISMATCH: 'Incorrect current password.',
       MISSING_PASSWORD: 'Password is required.',
       NO_VALID_FIELDS: 'No valid fields provided for update.',
-      INVALID_PAYLOAD: 'Invalid or incomplete request payload.'
+      INVALID_PAYLOAD: 'Invalid or incomplete request payload.',
+      INVALID_AMBASSADOR_VALUE: 'Invalid ambassador value. Must be true or false.'
     },
   
     TOKEN: {

@@ -1,10 +1,19 @@
 module.exports = {
   '/professionals': {
     get: {
-      summary: 'Retrieve all registered professionals',
+      summary: 'Retrieve all registered professionals (optionally filter by ambassador)',
       tags: ['Professional'],
-      description: 'Returns a list of all professionals. Admin access only.',
+      description: 'Returns a list of all professionals. Supports filtering by ambassador status. Admin access only.',
       security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'ambassador',
+          in: 'query',
+          required: false,
+          schema: { type: 'string', enum: ['true', 'false'] },
+          description: 'If set to true, returns only professionals who are ambassadors',
+        }
+      ],
       responses: {
         200: {
           description: 'List of professionals successfully retrieved',
@@ -191,4 +200,58 @@ module.exports = {
       },
     },
   },
+
+  '/professionals/{id}/ambassador': {
+    patch: {
+      summary: 'Update ambassador status for a professional (Admin only)',
+      tags: ['Professional'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "ID of the professional whose ambassador status will be updated",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['ambassador'],
+              properties: {
+                ambassador: {
+                  type: 'boolean',
+                  example: true,
+                  description: 'Set to true to activate, false to deactivate ambassador status'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Ambassador status updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' }
+                }
+              }
+            }
+          }
+        },
+        400: { description: 'Invalid ambassador value' },
+        404: { description: 'Professional not found' },
+        403: { description: 'Unauthorized – Admin access required' },
+        500: { description: 'Server error during update' },
+      }
+    }
+  }
 };

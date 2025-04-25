@@ -13,7 +13,7 @@ module.exports = {
               schema: {
                 type: 'array',
                 items: {
-                  $ref: '#/components/schemas/clientUser',
+                  $ref: '#/components/schemas/ClientUser',
                 },
                 example: [
                   {

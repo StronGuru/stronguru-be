@@ -15,15 +15,8 @@ const MESSAGES = require('../constants/messages');
 //GET all professionals - Admin only
 router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
   try {
-    const filter = {};
+    const professionals = await Professional.find().select('-password');
 
-    if (req.query.ambassador === 'true') {
-      filter.ambassador = true;
-    } else if (req.query.ambassador === 'false') {
-      filter.ambassador = false;
-    }
-
-    const professionals = await Professional.find(filter).select('-password');
     res.status(200).json(professionals);
   } catch (err) {
     console.error('Error fetching professionals:', err);
@@ -157,32 +150,6 @@ router.put('/professional/:id/password', async (req, res) => {
     res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
   }
 });
-
-//##### PATCH #####
-// Patch /professionals/:id/ambassador - Admin only
-router.patch('/:id/ambassador', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
-  try {
-    const professionalId = req.params.id;
-    const { ambassador } = req.body;
-
-    if (typeof ambassador !== 'boolean') {
-      return res.status(400).json({ message: MESSAGES.VALIDATION.INVALID_AMBASSADOR_VALUE });
-    }
-
-    const professional = await Professional.findById(professionalId);
-    if (!professional) {
-      return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
-    }
-
-    professional.ambassador = ambassador;
-    await professional.save();
-
-    res.status(200).json({ message: MESSAGES.SIGNUP.AMBASSADOR_STATUS_UPDATED(ambassador)});
-  } catch (err) {
-    console.error('Error updating ambassador status:', err);
-    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR});
-  }
-})
 
 //##### DELETE #####
 

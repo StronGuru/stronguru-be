@@ -45,4 +45,74 @@ module.exports = {
       },
     },
   },
+
+  '/users/{id}/ambassador': {
+    patch: {
+      summary: 'Update ambassador status for any user (Admin only)',
+      tags: ['User'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "ID of the user",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['ambassador'],
+              properties: {
+                ambassador: {
+                  type: 'boolean',
+                  example: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Ambassador status updated',
+        },
+        400: { description: 'Invalid value' },
+        403: { description: 'Admin access required' },
+        404: { description: 'User not found' },
+        500: { description: 'Server error' },
+      },
+    },
+  },
+
+  '/users/ambassadors': {
+    get: {
+      summary: 'Get all ambassador users, optionally filtered by role',
+      tags: ['User'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'role',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            enum: ['user', 'professional', 'admin'],
+          },
+          description: 'Optional filter by user role',
+        },
+      ],
+      responses: {
+        200: {
+          description: 'List of ambassadors retrieved successfully',
+        },
+        403: { description: 'Admin access required' },
+        500: { description: 'Server error' },
+      },
+    },
+  },
 };

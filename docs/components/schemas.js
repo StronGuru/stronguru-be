@@ -68,39 +68,32 @@ module.exports = {
               height: { type: 'number' },  // 'Number' -> 'number' (corretto per OpenAPI)
               weight: { type: 'number' },
             },
-            required: false,
           },
           fitnessLevel: {
             type: 'string',
             enum: ['beginner', 'intermediate', 'advanced'],
-            required: false,
           },
           goals: {
             type: 'array',
             items: { type: 'string' },
             enum: ['weight_loss', 'muscle_gain', 'endurance', 'flexibility'],
-            required: false,
           },
           activityLevel: {
             type: 'string',
             enum: ['sedentary', 'lightly_active', 'moderately_active', 'very_active'],
-            required: false,
           },
           preferences: {
             type: 'array',
             items: { type: 'string' },
             enum: ['vegan', 'vegetarian', 'gluten_free', 'dairy_free'],
-            required: false,
           },
           currentSports: {
             type: 'array',
             items: { type: 'string' },
-            required: false,
           },
           competitiveLevel: {
             type: 'string',
             enum: ['beginner', 'intermediate', 'advanced'],
-            required: false,
           },
         },
       },

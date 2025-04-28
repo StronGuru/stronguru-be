@@ -153,44 +153,4 @@ module.exports = {
       },
     },
   },
-
-  '/professionals/{id}/password': {
-    patch: {
-      summary: "Update professional's password",
-      tags: ['Professional'],
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'string' },
-          description: "Professional's ID",
-        },
-      ],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['oldPassword', 'newPassword'],
-              properties: {
-                oldPassword: { type: 'string', example: 'password123' },
-                newPassword: { type: 'string', example: 'newSecurePassword456' },
-              },
-            },
-          },
-        },
-      },
-      responses: {
-        200: { description: 'Password updated successfully' },
-        400: { description: 'Missing parameters' },
-        401: { description: 'Old password incorrect' },
-        403: { description: 'Unauthorized – You can only update your own password' },
-        404: { description: 'Professional not found' },
-        500: { description: 'Internal server error' },
-      },
-    },
-  },
 };

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const sgMail = require('@sendgrid/mail');
 require('dotenv').config(); // Per leggere le variabili d'ambiente
@@ -7,6 +8,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { USER_ROLES } = require('../constants/userRoles');
 const authorizeRoles = require('../middleware/authorizedRoles');
 const MESSAGES = require('../constants/messages');
+const UserDevices = require('../models/UserDevices');
 
 //GET all users - Admin only
 router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
@@ -62,5 +64,44 @@ router.patch('/:id/ambassador', authorizeRoles(USER_ROLES.ADMIN), async (req, re
     res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR});
   }
 })
+
+//PATCH change password
+router.patch('/:id/password', async (req, res) => {
+  const userId = req.params.id;
+  const { oldPassword, newPassword } = req.body;
+
+  if (
+    typeof oldPassword !== 'string' || 
+    typeof newPassword !== 'string' ||
+    oldPassword.trim() === '' ||
+    newPassword.trim() === ''
+  ) {
+    return res.status(400).json({ message: MESSAGES.VALIDATION.MISSING_PASSWORD});
+  }
+
+  try {
+    if (req.user._id.toString() !== userId) {
+      return res.status(403).json({ message: MESSAGES.GENERAL.UNAUTHORIZED_ACCESS});
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ messages: MESSAGES.GENERAL.USER_NOT_FOUND});
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: MESSAGES.VALIDATION.PASSWORD_MISMATCH});
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    await UserDevices.deleteMany({ user: userId});
+
+    res.status(200).json({ message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS, userId});
+  } catch (err) {
+    console.error('Password reset error:', err);
+    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR});
+  }
+});
 
 module.exports = router;

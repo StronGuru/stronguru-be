@@ -78,43 +78,6 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// PUT update password -- ANDREBBE RIFATTA ALL'INTERNO DI USERS(quindi generica). INOLTRE VERRA' GESTITA TRAMITE MAIL!!
-router.patch('/:id/password', async (req, res) => {
-  try {
-    const professionalId = req.params.id;
-    const { oldPassword, newPassword } = req.body;
-
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: MESSAGES.VALIDATION.MISSING_PASSWORD });
-    }
-
-    //verifica che l'utente stia modificando se stesso
-    if (req.user._id.toString() !== professionalId) {
-      return res.status(403).json({ message: MESSAGES.GENERAL.UNAUTHORIZED_ACCESS });
-    }
-
-    const professional = await Professional.findById(professionalId);
-    if (!professional) return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
-
-    //verify old password
-    const isMatch = await bcrypt.compare(oldPassword, professional.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: MESSAGES.VALIDATION.PASSWORD_MISMATCH });
-    }
-
-    //new password
-    professional.password = newPassword;
-    await professional.save();
-
-    await UserDevices.deleteMany({user: professionalId});
-
-    res.status(200).json({ message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS, professionalId });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: MESSAGES.GENERAL.SERVER_ERROR });
-  }
-});
-
 //##### DELETE #####
 
 //DELETE professional

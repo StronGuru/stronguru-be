@@ -115,4 +115,44 @@ module.exports = {
       },
     },
   },
+
+  '/users/{id}/password': {
+    patch: {
+      summary: "Update user's password",
+      tags: ['User'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "ID of the user",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['oldPassword', 'newPassword'],
+              properties: {
+                oldPassword: { type: 'string', example: 'password123' },
+                newPassword: { type: 'string', example: 'newPassword123' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: { description: 'Password updated successfully' },
+        400: { description: 'Missing parameters or empty password fields' },
+        401: { description: 'Incorrect old password' },
+        403: { description: 'Unauthorized to update this password' },
+        404: { description: 'User not found' },
+        500: { description: 'Server error during password update' },
+      },
+    },
+  },
 };

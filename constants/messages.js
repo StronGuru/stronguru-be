@@ -46,6 +46,7 @@ const MESSAGES = {
       SERVER_ERROR: 'An internal server error occurred.',
       USER_NOT_FOUND: 'User not found.',
       PROFESSIONAL_NOT_FOUND: 'Professional not found.',
+      CLIENTUSER_NOT_FOUND: 'ClientUser not found.',
       DEVICE_NOT_FOUND: 'Device not found.',
       UNAUTHORIZED_ACCESS: 'You are not authorized to perform this action.',
       ACCOUNT_DELETED: 'Account deleted successfully.',

@@ -1,3 +1,5 @@
+const { patch } = require("../routes/clientUsers");
+
 module.exports = {
   '/professionals': {
     get: {
@@ -24,7 +26,7 @@ module.exports = {
     },
   },
 
-  '/professionals/professional/{id}': {
+  '/professionals/{id}': {
     get: {
       summary: 'Get professional by ID (excluding password)',
       tags: ['Professional'],
@@ -51,7 +53,7 @@ module.exports = {
       },
     },
 
-    put: {
+    patch: {
       summary: 'Update professional profile (excluding password)',
       tags: ['Professional'],
       security: [{ bearerAuth: [] }],
@@ -152,8 +154,8 @@ module.exports = {
     },
   },
 
-  '/professionals/professional/{id}/password': {
-    put: {
+  '/professionals/{id}/password': {
+    patch: {
       summary: "Update professional's password",
       tags: ['Professional'],
       security: [{ bearerAuth: [] }],

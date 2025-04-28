@@ -9,6 +9,7 @@ const UserSettings = require('../models/UserSettings');
 const { USER_ROLES } = require('../constants/userRoles');
 const authorizeRoles = require('../middleware/authorizedRoles');
 const MESSAGES = require('../constants/messages');
+const sanitizeBody = require('../helpers/sanitizeBody');
 
 //##### GET #####
 
@@ -25,7 +26,7 @@ router.get('/', authorizeRoles(USER_ROLES.ADMIN), async (req, res) => {
 });
 
 // GET one professional by ID
-router.get('/professional/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -46,7 +47,7 @@ router.get('/professional/:id', async (req, res) => {
 // ##### PUT #####
 
 // PUT update professional profile
-router.put('/professional/:id', async (req, res) => {
+router.patch('/:id', async (req, res) => {
   try {
     const professionalId = req.params.id;
 
@@ -55,57 +56,20 @@ router.put('/professional/:id', async (req, res) => {
       return res.status(403).json({ message: MESSAGES.GENERAL.UNAUTHORIZED_ACCESS });
     }
 
-    const updatableFields = {
-      firstName,
-      lastName,
-      gender,
-      phone,
-      biography,
-      specializations,
-      contactEmail,
-      contactPhone,
-      languages,
-      address,
-      professionalExp,
-      expStartDate,
-      certifications,
-      profileImg,
-      socialLinks
-    } = req.body;
+    const allowedFields = ['firstName', 'lastName', 'phone', 'address', 'dateOfBirth', 'biography', 'profileImg', 'socialLinks', 'gender', 'contactEmail', 'contactPhone', 'languages', 'professionalExp', 'expStartDate', 'certifications'];
 
-    //se nessun campo valido è presente --> errore 400
-    const hasAtLeastOneField = Object.values(updatableFields).some(value=> value !== undefined);
-    if (!hasAtLeastOneField) {
+    // Pulisco il body da campi non validi
+    const sanitizedBody = sanitizeBody(req.body, allowedFields);
+
+    if (sanitizedBody == {}) {
       return res.status(400).json({ message: MESSAGES.VALIDATION.NO_VALID_FIELDS });
     }
 
-    const professional = await Professional.findById(professionalId);
-    if (!professional) return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
+    const professionalUpdated = await Professional.findByIdAndUpdate(professionalId, { $set: sanitizedBody }, { new: true }).select('-password');
 
-    //aggiorna solo i campi presenti nel body
-    if (firstName) professional.firstName = firstName;
-    if (lastName) professional.lastName = lastName;
-    if (gender) professional.gender = gender;
-    if (phone) professional.phone = phone;
-    if (biography) professional.biography = biography;
-    if (contactEmail) professional.contactEmail = contactEmail;
-    if (contactPhone) professional.contactPhone = contactPhone;
-    if (languages) professional.languages = languages;
-    if (address) professional.address = address;
-    if (professionalExp) professional.professionalExp = professionalExp;
-    if (expStartDate) professional.expStartDate = expStartDate;
-    if (certifications) professional.certifications = certifications;
-    if (profileImg) professional.profileImg = profileImg;
-    if (socialLinks) professional.socialLinks = socialLinks;
-
-    //gestione specializzazioni
-    if (specializations && specializations.length > 0) {
-      const validSpecs = filterValidSpecializations(specializations);
-      professional.specializations = validSpecs;
-      await assignSpecToProfessional(validSpecs, professionalId);
+    if (!professionalUpdated) {
+      return res.status(404).json({ message: MESSAGES.GENERAL.PROFESSIONAL_NOT_FOUND });
     }
-
-    await professional.save();
 
     res.status(200).json({ message: 'Profile successfully updated', professionalId });
   } catch (err) {
@@ -114,8 +78,8 @@ router.put('/professional/:id', async (req, res) => {
   }
 });
 
-// PUT update password
-router.put('/professional/:id/password', async (req, res) => {
+// PUT update password -- ANDREBBE RIFATTA ALL'INTERNO DI USERS(quindi generica). INOLTRE VERRA' GESTITA TRAMITE MAIL!!
+router.patch('/:id/password', async (req, res) => {
   try {
     const professionalId = req.params.id;
     const { oldPassword, newPassword } = req.body;
@@ -154,7 +118,7 @@ router.put('/professional/:id/password', async (req, res) => {
 //##### DELETE #####
 
 //DELETE professional
-router.delete('/professional/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const models = {
       nutritionist: require('../models/Nutritionist'),
@@ -191,9 +155,9 @@ router.delete('/professional/:id', async (req, res) => {
       }
     }
 
-    await Professional.findByIdAndDelete(professionalId);
     await UserDevices.deleteMany({user: professionalId});
     await UserSettings.deleteMany({user: professionalId});
+    await Professional.findByIdAndDelete(professionalId);
 
     res.status(200).json({ message: MESSAGES.GENERAL.ACCOUNT_DELETED });
   } catch (err) {

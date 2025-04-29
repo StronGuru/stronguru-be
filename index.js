@@ -53,23 +53,23 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Routes
-const authRoutes = require('./modules/auth/routes');
-app.use('/auth', authRoutes);
+// Routes API
+const authAPI = require('./modules/auth/routes');
+app.use('/auth', authAPI);
 
-const tokenAPI = require('./routes/token');
+const tokenAPI = require('./modules/token/routes');
 app.use('/token', tokenAPI);
 
-const usersAPI = require('./routes/users');
-app.use('/users',authMiddleware(), usersAPI);
+const usersAPI = require('./modules/users/routes');
+app.use('/users', usersAPI);
 
-const professionalAPI = require('./routes/professionals');
-app.use('/professionals', authMiddleware(), professionalAPI);
+const professionalAPI = require('./modules/professionals/routes');
+app.use('/professionals', professionalAPI);
 
-const clientUsersAPI = require('./routes/clientUsers');
+const clientUsersAPI = require('./modules/clientUsers/routes');
 app.use('/clientUsers', authMiddleware(), clientUsersAPI);
 
-const userDevicesAPI = require('./routes/userDevices');
+const userDevicesAPI = require('./modules/userDevices/routes');
 app.use('/devices', authMiddleware(), userDevicesAPI);
 
 //After the routes!

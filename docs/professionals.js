@@ -1,5 +1,3 @@
-const { patch } = require("../routes/clientUsers");
-
 module.exports = {
   '/professionals': {
     get: {
@@ -30,6 +28,7 @@ module.exports = {
     get: {
       summary: 'Get professional by ID (excluding password)',
       tags: ['Professional'],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',

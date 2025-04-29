@@ -1,5 +1,3 @@
-const { patch } = require("../routes/clientUsers");
-
 module.exports = {
   '/clientUsers': {
     get: {

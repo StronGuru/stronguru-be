@@ -228,22 +228,6 @@ exports.login = async (data, req) => {
         }).save();
     }
 
-    // // Set cookies
-    // res.cookie('refreshToken', refreshToken, {
-    //     httpOnly: true,
-    //     secure: true, // solo in HTTPS in prod
-    //     secure: process.env.NODE_ENV === 'production', // true solo in prod (HTTPS)
-    //     sameSite: 'Strict',
-    //     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 giorni
-    // });
-
-    // res.cookie('deviceId', existingDevice._id.toString(), {
-    //     httpOnly: false,
-    //     secure: process.env.NODE_ENV === 'production',
-    //     sameSite: 'Strict',
-    //     maxAge: 1000 * 60 * 60 * 24 * 7
-    // });
-
     // Respond with accessToken and user info
     return {
         accessToken,
@@ -289,22 +273,6 @@ exports.refreshToken = async (cookies) => {
     device.refreshToken = newRefreshToken;
     device.lastAccessed = new Date();
     await device.save();
-
-    // // Update cookies
-    // res.cookie('refreshToken', newRefreshToken, {
-    //     httpOnly: true,
-    //     secure: true, // solo in HTTPS in prod
-    //     secure: process.env.NODE_ENV === 'production', // true solo in prod (HTTPS)
-    //     sameSite: 'Strict',
-    //     maxAge: 1000 * 60 * 60 * 24 * 7 // 7 giorni
-    // });
-
-    // res.cookie('deviceId', device._id.toString(), {
-    //     httpOnly: false,
-    //     secure: process.env.NODE_ENV === 'production',
-    //     sameSite: 'Strict',
-    //     maxAge: 1000 * 60 * 60 * 24 * 7
-    // });
 
     // Return new access token
     return { accessToken: newAccessToken };

@@ -10,7 +10,7 @@ const passport = require('passport');
 const useragent = require('express-useragent');
 const corsConfig = require('./config/corsConfig');
 const cookieParser = require('cookie-parser');
-const authMiddleware = require('./middleware/auth'); // o come si chiama il tuo file
+const authMiddleware = require('./middleware/auth');
 
 
 
@@ -58,10 +58,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Rotte API
-
-const authAPI = require('./routes/auth');
-app.use('/auth', authAPI);
+// Routes
+const authRoutes = require('./modules/auth/routes');
+app.use('/auth', authRoutes);
 
 const tokenAPI = require('./routes/token');
 app.use('/token', tokenAPI);

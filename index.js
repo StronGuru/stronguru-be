@@ -11,6 +11,7 @@ const useragent = require('express-useragent');
 const corsConfig = require('./config/corsConfig');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth');
+const errorHandler = require('./middleware/errorHandler');
 
 
 
@@ -44,12 +45,6 @@ mongoose.connect(mongoURI)
     .then(() => console.log('Connesso al database MongoDB!'))
     .catch(err => console.error('Errore di connessione al database:', err));
 
-//gestione errori globali -Ms
-app.use((err, req, res, next) => {
-    console.error('Errore globale:', err.stack);
-    res.status(500).json({message: 'Errore interno del server'});
-});
-
 // Configurazione per servire file statici dalla cartella "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -76,6 +71,9 @@ app.use('/clientUsers', authMiddleware(), clientUsersAPI);
 
 const userDevicesAPI = require('./routes/userDevices');
 app.use('/devices', authMiddleware(), userDevicesAPI);
+
+//After the routes!
+app.use(errorHandler);
 
 
 // Porta e avvio server

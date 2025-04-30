@@ -1,21 +1,12 @@
 module.exports = {
-  '/devices/user/{userId}': {
+  '/devices': {
     get: {
       summary: 'Get all devices associated with a specific user',
       tags: ['UserDevices'],
       security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          in: 'path',
-          name: 'userId',
-          required: true,
-          description: 'ID of the user',
-          schema: { type: 'string', example: '6634567890abcdef12345678' },
-        },
-      ],
       responses: {
         200: {
-          description: 'List of user devices successfully retrieved',
+          description: 'List of user devices ',
           content: {
             'application/json': {
               schema: {
@@ -42,7 +33,7 @@ module.exports = {
     },
   },
 
-  '/devices/{id}': {
+  '/devices/{deviceid}': {
     get: {
       summary: 'Get a single device by its ID',
       tags: ['UserDevices'],

@@ -24,10 +24,11 @@ module.exports = {
     },
   },
 
-  '/professionals/professional/{id}': {
+  '/professionals/{id}': {
     get: {
       summary: 'Get professional by ID (excluding password)',
       tags: ['Professional'],
+      security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
@@ -51,7 +52,7 @@ module.exports = {
       },
     },
 
-    put: {
+    patch: {
       summary: 'Update professional profile (excluding password)',
       tags: ['Professional'],
       security: [{ bearerAuth: [] }],
@@ -148,46 +149,6 @@ module.exports = {
         403: { description: 'Unauthorized deletion attempt' },
         404: { description: 'Professional not found' },
         500: { description: 'Server error during deletion' },
-      },
-    },
-  },
-
-  '/professionals/professional/{id}/password': {
-    put: {
-      summary: "Update professional's password",
-      tags: ['Professional'],
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: 'id',
-          in: 'path',
-          required: true,
-          schema: { type: 'string' },
-          description: "Professional's ID",
-        },
-      ],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['oldPassword', 'newPassword'],
-              properties: {
-                oldPassword: { type: 'string', example: 'password123' },
-                newPassword: { type: 'string', example: 'newSecurePassword456' },
-              },
-            },
-          },
-        },
-      },
-      responses: {
-        200: { description: 'Password updated successfully' },
-        400: { description: 'Missing parameters' },
-        401: { description: 'Old password incorrect' },
-        403: { description: 'Unauthorized – You can only update your own password' },
-        404: { description: 'Professional not found' },
-        500: { description: 'Internal server error' },
       },
     },
   },

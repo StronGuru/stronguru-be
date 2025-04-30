@@ -6,7 +6,7 @@ module.exports = (roles = []) => {
   if (typeof roles === 'string') roles = [roles]; //permette sia una stringa che un array
 
   return (req, res, next) => {
-    passport.authenticate('jwt', { session: false }, (err, user) => {
+    passport.authenticate('jwt', { session: false }, async (err, user) => {
 
       //aggiunta messaggi di errore più dettagliati -Ms
       if (err) {
@@ -16,7 +16,7 @@ module.exports = (roles = []) => {
 
       if (!user) return res.status(401).json({ msg: MESSAGES.AUTH.TOKEN_MISSING });
       
-      const deviceExists = UserDevices.findOne({user: user.id, _id: req.cookies.deviceId })
+      const deviceExists = await UserDevices.findOne({user: user.id, _id: req.cookies.deviceId });
       if (!deviceExists) return res.status(401).json({ msg: MESSAGES.AUTH.DEVICE_INVALID });
 
       if (roles.length && !roles.includes(user.role)) {

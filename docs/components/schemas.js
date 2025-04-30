@@ -63,9 +63,9 @@ module.exports = {
         description: 'ClientUser-specific properties',
         properties: {
           healthData: {
-            type: 'object',  // Cambiato da 'Object' a 'object'
+            type: 'object',
             properties: {
-              height: { type: 'number' },  // 'Number' -> 'number' (corretto per OpenAPI)
+              height: { type: 'number' }, 
               weight: { type: 'number' },
             },
           },

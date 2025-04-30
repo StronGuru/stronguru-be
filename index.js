@@ -10,7 +10,8 @@ const passport = require('passport');
 const useragent = require('express-useragent');
 const corsConfig = require('./config/corsConfig');
 const cookieParser = require('cookie-parser');
-const authMiddleware = require('./middleware/auth'); // o come si chiama il tuo file
+const authMiddleware = require('./middleware/auth');
+const errorHandler = require('./middleware/errorHandler');
 
 
 
@@ -44,12 +45,6 @@ mongoose.connect(mongoURI)
     .then(() => console.log('Connesso al database MongoDB!'))
     .catch(err => console.error('Errore di connessione al database:', err));
 
-//gestione errori globali -Ms
-app.use((err, req, res, next) => {
-    console.error('Errore globale:', err.stack);
-    res.status(500).json({message: 'Errore interno del server'});
-});
-
 // Configurazione per servire file statici dalla cartella "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -58,25 +53,27 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Rotte API
-
-const authAPI = require('./routes/auth');
+// Routes API
+const authAPI = require('./modules/auth/routes');
 app.use('/auth', authAPI);
 
-const tokenAPI = require('./routes/token');
+const tokenAPI = require('./modules/token/routes');
 app.use('/token', tokenAPI);
 
-const usersAPI = require('./routes/users');
-app.use('/users',authMiddleware(), usersAPI);
+const usersAPI = require('./modules/users/routes');
+app.use('/users', usersAPI);
 
-const professionalAPI = require('./routes/professionals');
-app.use('/professionals', authMiddleware(), professionalAPI);
+const professionalAPI = require('./modules/professionals/routes');
+app.use('/professionals', professionalAPI);
 
-const clientUsersAPI = require('./routes/clientUsers');
+const clientUsersAPI = require('./modules/clientUsers/routes');
 app.use('/clientUsers', authMiddleware(), clientUsersAPI);
 
-const userDevicesAPI = require('./routes/userDevices');
+const userDevicesAPI = require('./modules/userDevices/routes');
 app.use('/devices', authMiddleware(), userDevicesAPI);
+
+//After the routes!
+app.use(errorHandler);
 
 
 // Porta e avvio server

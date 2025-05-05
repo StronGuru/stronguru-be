@@ -315,6 +315,8 @@ exports.requestPasswordReset = async (email) => {
         resetToken: rawToken
       }
     });
+
+    console.info(`[RESET] Password reset token sent to ${user.email} at ${new Date().toISOString()}`);
     
     console.log(`[TEST] Raw reset token: ${rawToken}`); //da eliminare
     return { message: MESSAGES.AUTH.PASSWORD_RESET_EMAIL };
@@ -333,9 +335,16 @@ exports.requestPasswordReset = async (email) => {
     if (!user) {
       throwError(MESSAGES.GENERAL.USER_NOT_FOUND, 404);
     }
+
+    const isSame = await user.comparePassword(newPassword);
+    if (isSame) {
+    throwError(MESSAGES.VALIDATION.PASSWORD_REUSE_NOT_ALLOWED || 'New password must be different from the previous one', 400);
+    }
   
     user.password = newPassword;
     await user.save();
+
+    console.info(`[RESET] Password changed for user ${user.email} at ${new Date().toISOString()}`);
   
     await tokenDoc.deleteOne();
   

@@ -7,6 +7,7 @@ const UserDevices = require('../../models/UserDevices');
 const UserToken = require('../../models/UserToken');
 const UserSettings = require('../../models/UserSettings');
 const MESSAGES = require('../../constants/messages');
+const TOKEN_TYPES = require('../../constants/tokenTypes');
 const sendTemplateEmail = require('../../config/emailService');
 const { generateAccessToken, generateRefreshToken } = require('../../helpers/tokenUtils');
 const { USER_ROLES } = require('../../constants/userRoles');
@@ -297,27 +298,32 @@ exports.requestPasswordReset = async (email) => {
       return { message: MESSAGES.AUTH.PASSWORD_RESET_EMAIL };
     }
   
-    const resetToken = crypto.randomBytes(32).toString('hex');
-  
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
     await new UserToken({
-      userId: user._id,
-      token: resetToken,
-      type: 'password_reset'
+    userId: user._id,
+    token: hashedToken,
+    type: TOKEN_TYPES.PASSWORD_RESET
     }).save();
+
   
     await sendTemplateEmail({
       to: user.email,
       templateKey: 'PASSWORD_RESET',
       dynamicData: {
-        resetToken: resetToken
+        resetToken: rawToken
       }
     });
-  
+    
+    console.log(`[TEST] Raw reset token: ${rawToken}`); //da eliminare
     return { message: MESSAGES.AUTH.PASSWORD_RESET_EMAIL };
   };
 
   exports.resetPasswordByToken = async (token, newPassword) => {
-    const tokenDoc = await UserToken.findOne({ token, type: 'password_reset' });
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const tokenDoc = await UserToken.findOne({ token: hashedToken, type: TOKEN_TYPES.PASSWORD_RESET });
+
   
     if (!tokenDoc) {
       throwError(MESSAGES.TOKEN.INVALID_OR_EXPIRED, 400);

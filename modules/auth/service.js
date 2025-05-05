@@ -288,3 +288,51 @@ exports.logout = async (cookies) => {
 
     return MESSAGES.AUTH.LOGOUT_SUCCESS;
 };
+
+exports.requestPasswordReset = async (email) => {
+    const user = await User.findOne({ email });
+  
+    // Per evitare user enumeration: restituiamo messaggio generico anche se utente non trovato o non verificato
+    if (!user || !user.isVerified) {
+      return { message: MESSAGES.AUTH.PASSWORD_RESET_EMAIL };
+    }
+  
+    const resetToken = crypto.randomBytes(32).toString('hex');
+  
+    await new UserToken({
+      userId: user._id,
+      token: resetToken,
+      type: 'password_reset'
+    }).save();
+  
+    await sendTemplateEmail({
+      to: user.email,
+      templateKey: 'PASSWORD_RESET',
+      dynamicData: {
+        resetToken: resetToken
+      }
+    });
+  
+    return { message: MESSAGES.AUTH.PASSWORD_RESET_EMAIL };
+  };
+
+  exports.resetPasswordByToken = async (token, newPassword) => {
+    const tokenDoc = await UserToken.findOne({ token, type: 'password_reset' });
+  
+    if (!tokenDoc) {
+      throwError(MESSAGES.TOKEN.INVALID_OR_EXPIRED, 400);
+    }
+  
+    const user = await User.findById(tokenDoc.userId);
+    if (!user) {
+      throwError(MESSAGES.GENERAL.USER_NOT_FOUND, 404);
+    }
+  
+    user.password = newPassword;
+    await user.save();
+  
+    await tokenDoc.deleteOne();
+  
+    return { message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS };
+  };
+  

@@ -3,6 +3,18 @@ module.exports = {
     post: {
       summary: 'Authenticate user and return JWT tokens',
       tags: ['Auth'],
+      "parameters": [
+        {
+          "name": "X-Device-Type",
+          "in": "header",
+          "description": "Tipo di dispositivo (desktop, mobile, tablet)",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["desktop", "mobile"]
+          }
+        }
+      ],
       requestBody: {
         required: true,
         content: {

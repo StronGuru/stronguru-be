@@ -52,6 +52,7 @@ const MESSAGES = {
       UNAUTHORIZED_ACCESS: 'You are not authorized to perform this action.',
       ACCOUNT_DELETED: 'Account deleted successfully.',
       ACTION_FORBIDDEN: 'You do not have permission to perform this operation.',
+      DEVICE_TYPE_NOT_VALID: 'Device Type not valid.'
     }
   };
   

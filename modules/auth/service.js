@@ -171,7 +171,7 @@ exports.signupUser = async (data) => {
 // POST /auth/login
 exports.login = async (data, req) => {
     const { email, password } = data;
-    const deviceType = req.useragent.isMobile || req.useragent.isTablet ? 'mobile' : 'desktop';
+    const deviceType = req.headers['x-device-type'] || 'unknown';
 
     // Basic validation
     if (!email || !password) {
@@ -182,6 +182,10 @@ exports.login = async (data, req) => {
     const user = await User.findOne({ email });
     if (!user || !(await user.comparePassword(password))) {
         throwError(MESSAGES.AUTH.INVALID_CREDENTIALS, 400);
+    }
+
+    if (deviceType === 'unknown') {
+        throwError(`${MESSAGES.GENERAL.DEVICE_TYPE_NOT_VALID}: ${deviceType}`, 500)
     }
 
     // Check device type against role

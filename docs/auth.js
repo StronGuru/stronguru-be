@@ -3,6 +3,18 @@ module.exports = {
     post: {
       summary: 'Authenticate user and return JWT tokens',
       tags: ['Auth'],
+      "parameters": [
+        {
+          "name": "X-Device-Type",
+          "in": "header",
+          "description": "Tipo di dispositivo (desktop, mobile, tablet)",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["desktop", "mobile"]
+          }
+        }
+      ],
       requestBody: {
         required: true,
         content: {
@@ -230,4 +242,107 @@ module.exports = {
       },
     },
   },
+
+  '/auth/forgot-password': {
+    post: {
+      summary: 'Request password reset email',
+      tags: ['Auth'],
+      description: 'Sends a password reset token to the provided email if the user exists and has verified their account.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['email'],
+              properties: {
+                email: {
+                  type: 'string',
+                  format: 'email',
+                  example: 'user@gmail.com'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Password reset email sent (even if user does not exist)',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: {
+                    type: 'string',
+                    example: 'Password reset email sent.'
+                  }
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error'
+        }
+      }
+    }
+  },
+
+  '/auth/reset-password': {
+    post: {
+      summary: 'Reset password using token',
+      tags: ['Auth'],
+      description: 'Resets the user\'s password if the provided token is valid and not expired.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['token', 'newPassword'],
+              properties: {
+                token: {
+                  type: 'string',
+                  example: 'abc123resettoken'
+                },
+                newPassword: {
+                  type: 'string',
+                  example: 'newPassword123'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Password successfully updated',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: {
+                    type: 'string',
+                    example: 'Password reset successfully.'
+                  }
+                }
+              }
+            }
+          }
+        },
+        400: {
+          description: 'Invalid or expired token'
+        },
+        404: {
+          description: 'User not found'
+        },
+        500: {
+          description: 'Internal server error'
+        }
+      }
+    }
+  }
 };

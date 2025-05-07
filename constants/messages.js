@@ -34,7 +34,8 @@ const MESSAGES = {
       MISSING_PASSWORD: 'Password is required.',
       NO_VALID_FIELDS: 'No valid fields provided for update.',
       INVALID_PAYLOAD: 'Invalid or incomplete request payload.',
-      INVALID_AMBASSADOR_VALUE: 'Invalid ambassador value. Must be true or false.'
+      INVALID_AMBASSADOR_VALUE: 'Invalid ambassador value. Must be true or false.',
+      PASSWORD_REUSE_NOT_ALLOWED: 'New password must be different from the previous one.'
     },
   
     TOKEN: {
@@ -51,6 +52,7 @@ const MESSAGES = {
       UNAUTHORIZED_ACCESS: 'You are not authorized to perform this action.',
       ACCOUNT_DELETED: 'Account deleted successfully.',
       ACTION_FORBIDDEN: 'You do not have permission to perform this operation.',
+      DEVICE_TYPE_NOT_VALID: 'Device Type not valid.'
     }
   };
   

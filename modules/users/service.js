@@ -2,6 +2,7 @@ const User = require('../../models/User');
 const UserDevices = require('../../models/UserDevices');
 const throwError = require('../../helpers/throwError');
 const MESSAGES = require('../../constants/messages');
+const UserSettings = require('../../models/UserSettings');
 
 exports.getAllUsers = async () => {
   const users = await User.find().select('-password');
@@ -60,3 +61,39 @@ exports.changePassword = async (userIdParam, userIdSession, oldPassword, newPass
 
   return { message: MESSAGES.AUTH.PASSWORD_RESET_SUCCESS };
 };
+
+exports.getUserSettings = async (userId) => {
+  const settings = await UserSettings.findOne({ user: userId });
+  if (!settings) {
+    throwError('Settings not found', 404);
+  }
+  return settings;
+};
+
+exports.updateUserSettings = async (userId, updateData) => {
+  const allowedFields = ['darkmode', 'language', 'dateTimeFormat', 'timeZone'];
+  const updates = {};
+
+  for (const field of allowedFields) {
+    if (updateData[field] !== undefined) {
+      updates[field] = updateData[field];
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    throwError('No valid fields provided', 400);
+  }
+
+  const updated = await UserSettings.findOneAndUpdate(
+    { user: userId },
+    { $set: updates },
+    { new: true }
+  );
+
+  if (!updated) {
+    throwError('Settings not found', 404);
+  }
+
+  return updated;
+};
+

@@ -155,4 +155,71 @@ module.exports = {
       },
     },
   },
+
+  '/users/settings': {
+    get: {
+      summary: 'Get current user settings',
+      tags: ['User'],
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: 'Settings retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  user: { type: 'string' },
+                  darkmode: { type: 'boolean' },
+                  language: { type: 'string' },
+                  dateTimeFormat: { type: 'string', enum: ['12h', '24h'] },
+                  timeZone: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        404: { description: 'Settings not found' },
+      },
+    },
+    patch: {
+      summary: 'Update current user settings',
+      tags: ['User'],
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                darkmode: { type: 'boolean', example: true },
+                language: { type: 'string', example: 'it' },
+                dateTimeFormat: { type: 'string', enum: ['12h', '24h'] },
+                timeZone: { type: 'string', example: 'Europe/Rome' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Settings updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  settings: { $ref: '#/components/schemas/UserSettings' },
+                },
+              },
+            },
+          },
+        },
+        400: { description: 'Invalid update payload' },
+        404: { description: 'Settings not found' },
+      },
+    },
+  },
 };

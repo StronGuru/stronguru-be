@@ -65,7 +65,7 @@ exports.changePassword = async (userIdParam, userIdSession, oldPassword, newPass
 exports.getUserSettings = async (userId) => {
   const settings = await UserSettings.findOne({ user: userId });
   if (!settings) {
-    throwError('Settings not found', 404);
+    throwError(MESSAGES.USER_SETTINGS.NOT_FOUND, 404);
   }
   return settings;
 };
@@ -81,7 +81,7 @@ exports.updateUserSettings = async (userId, updateData) => {
   }
 
   if (Object.keys(updates).length === 0) {
-    throwError('No valid fields provided', 400);
+    throwError(MESSAGES.USER_SETTINGS.INVALID_FIELDS, 400);
   }
 
   const updated = await UserSettings.findOneAndUpdate(
@@ -91,7 +91,7 @@ exports.updateUserSettings = async (userId, updateData) => {
   );
 
   if (!updated) {
-    throwError('Settings not found', 404);
+    throwError(MESSAGES.USER_SETTINGS.NOT_FOUND, 404);
   }
 
   return updated;

@@ -48,7 +48,7 @@ exports.getOwnSettings = async (req, res, next) => {
 exports.updateOwnSettings = async (req, res, next) => {
   try {
     const updated = await UserService.updateUserSettings(req.user._id, req.body);
-    res.status(200).json({ message: 'Settings updated', settings: updated });
+    res.status(200).json({  message: MESSAGES.USER_SETTINGS.UPDATED, settings: updated });
   } catch (error) {
     next(error);
   }

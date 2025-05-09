@@ -53,7 +53,14 @@ const MESSAGES = {
       ACCOUNT_DELETED: 'Account deleted successfully.',
       ACTION_FORBIDDEN: 'You do not have permission to perform this operation.',
       DEVICE_TYPE_NOT_VALID: 'Device Type not valid.'
+    },
+
+    USER_SETTINGS: {
+      NOT_FOUND: 'User settings not found',
+      UPDATED: 'Settings updated successfully',
+      INVALID_FIELDS: 'No valid fields provided for update',
     }
+    
   };
   
   module.exports = MESSAGES;

@@ -12,4 +12,8 @@ router.patch('/:id/ambassador', authMiddleware(USER_ROLES.ADMIN), UserController
 // Authenticated user
 router.patch('/:id/password', authMiddleware(), UserController.changePassword);
 
+//User settings
+router.get('/settings', authMiddleware(), UserController.getOwnSettings);
+router.patch('/settings', authMiddleware(), UserController.updateOwnSettings);
+
 module.exports = router;

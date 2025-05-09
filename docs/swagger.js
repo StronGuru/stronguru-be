@@ -13,12 +13,12 @@ module.exports = {
     version: '1.0.0',
     description: 'Centralized and modular documentation of StronGuru backend APIs.',
   },
-  servers: [
-    {
-      url: 'http://localhost:8080',
-      description: 'Local development server',
-    },
-  ],
+  // servers: [
+  //   {
+  //     url: 'http://localhost:8080',
+  //     description: 'Local development server',
+  //   },
+  // ],
   paths: {
     ...users,
     ...auth,

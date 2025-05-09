@@ -1,44 +1,39 @@
 const { body } = require('express-validator');
 const MESSAGES = require('../../constants/messages');
 
+// 📦 Import shared validators
+const {
+  validateFirstName,
+  validateLastName,
+  validatePhone,
+  validateEmail,
+  validateGender,
+} = require('./shared/commonValidators');
+
+// 👨‍⚕️ Professional profile update validator
 exports.updateProfessionalValidator = [
-  body('firstName')
-    .optional()
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_FIRST_NAME),
+  // Basic info
+  validateFirstName().optional(),
+  validateLastName().optional(),
+  validatePhone().optional(),
 
-  body('lastName')
-    .optional()
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_LAST_NAME),
-
-  body('phone')
-    .optional()
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_PHONE),
-
+  // Optional contact email (separate from login email)
   body('contactEmail')
     .optional()
     .trim()
     .isEmail()
     .withMessage(MESSAGES.VALIDATION.INVALID_EMAIL),
 
+  // Optional contact phone
   body('contactPhone')
     .optional()
     .trim()
     .escape(),
 
-  body('gender')
-    .optional()
-    .isIn(['male', 'female', 'other'])
-    .withMessage(MESSAGES.VALIDATION.INVALID_GENDER),
+  // Gender
+  validateGender().optional(),
 
+  // Professional experience details
   body('languages')
     .optional()
     .isArray()
@@ -59,6 +54,7 @@ exports.updateProfessionalValidator = [
     .isISO8601()
     .withMessage(MESSAGES.VALIDATION.INVALID_DATE),
 
+  // Optional social & address info
   body('socialLinks')
     .optional()
     .isObject()

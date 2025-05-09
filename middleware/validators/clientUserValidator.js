@@ -1,33 +1,23 @@
 const { body } = require('express-validator');
 const MESSAGES = require('../../constants/messages');
 
+// 📦 Import shared validators
+const {
+  validateFirstName,
+  validateLastName,
+  validatePhone,
+  validateGender,
+} = require('./shared/commonValidators');
+
+// 👤 ClientUser profile update validator
 exports.updateClientUserValidator = [
-  body('firstName')
-    .optional()
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_FIRST_NAME),
+  // Basic info
+  validateFirstName().optional(),
+  validateLastName().optional(),
+  validatePhone().optional(),
+  validateGender().optional(),
 
-  body('lastName')
-    .optional()
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_LAST_NAME),
-
-  body('phone')
-    .optional()
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_PHONE),
-
-  body('gender')
-    .optional()
-    .isIn(['male', 'female', 'other'])
-    .withMessage(MESSAGES.VALIDATION.INVALID_GENDER),
-
+  // Fitness profile fields
   body('fitnessLevel')
     .optional()
     .isIn(['beginner', 'intermediate', 'advanced'])
@@ -58,6 +48,7 @@ exports.updateClientUserValidator = [
     .isIn(['beginner', 'intermediate', 'advanced'])
     .withMessage(MESSAGES.VALIDATION.INVALID_COMPETITIVE_LEVEL),
 
+  // Contact & social info
   body('socialLinks')
     .optional()
     .isObject()

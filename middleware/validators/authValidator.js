@@ -1,53 +1,34 @@
 const { body } = require('express-validator');
 const MESSAGES = require('../../constants/messages');
 
+// 📦 Import shared validators
+const {
+  validateFirstName,
+  validateLastName,
+  validateEmail,
+  validatePassword,
+  validatePasswordNotEmpty,
+  validateDateOfBirth,
+  validateGender,
+  validatePhone,
+  validateTerms,
+  validatePrivacy,
+} = require('./shared/commonValidators');
+
+// 🧾 Signup for regular users
 exports.signupUserValidator = [
-  body('firstName')
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_FIRST_NAME),
-
-  body('lastName')
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_LAST_NAME),
-
-  body('email')
-    .trim()
-    .isEmail()
-    .withMessage(MESSAGES.VALIDATION.INVALID_EMAIL),
-
-  body('password')
-    .trim()
-    .isLength({ min: 8 })
-    .withMessage(MESSAGES.VALIDATION.WEAK_PASSWORD),
-
-  body('dateOfBirth')
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_DOB),
-
-  body('gender')
-    .trim()
-    .isIn(['male', 'female', 'other'])
-    .withMessage(MESSAGES.VALIDATION.INVALID_GENDER),
-
-  body('phone')
-    .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_PHONE),
-
-  body('acceptedTerms')
-    .equals('true')
-    .withMessage(MESSAGES.SIGNUP.MISSING_TERMS),
-
-  body('acceptedPrivacy')
-    .equals('true')
-    .withMessage(MESSAGES.SIGNUP.MISSING_PRIVACY),
+  validateFirstName(),
+  validateLastName(),
+  validateEmail(),
+  validatePassword('password'),
+  validateDateOfBirth(),
+  validateGender(),
+  validatePhone(),
+  validateTerms(),
+  validatePrivacy(),
 ];
 
+// 👩‍⚕️ Signup for professionals (extends user signup)
 exports.signupProfessionalValidator = [
   ...exports.signupUserValidator,
 
@@ -76,33 +57,23 @@ exports.signupProfessionalValidator = [
     .withMessage(MESSAGES.VALIDATION.TAXCODE_INVALID_LENGTH),
 ];
 
+// 🔐 Login
 exports.loginValidator = [
-  body('email')
-    .trim()
-    .isEmail()
-    .withMessage(MESSAGES.VALIDATION.INVALID_EMAIL),
-
-  body('password')
-    .trim()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.MISSING_PASSWORD),
+  validateEmail(),
+  validatePasswordNotEmpty('password'),
 ];
 
+// 🔁 Forgot password
 exports.forgotPasswordValidator = [
-  body('email')
-    .trim()
-    .isEmail()
-    .withMessage(MESSAGES.VALIDATION.INVALID_EMAIL),
+  validateEmail(),
 ];
 
+// 🔄 Reset password
 exports.resetPasswordValidator = [
   body('token')
     .trim()
     .notEmpty()
     .withMessage(MESSAGES.VALIDATION.RESET_TOKEN_REQUIRED),
 
-  body('newPassword')
-    .trim()
-    .isLength({ min: 8 })
-    .withMessage(MESSAGES.VALIDATION.WEAK_PASSWORD),
+  validatePassword('newPassword'),
 ];

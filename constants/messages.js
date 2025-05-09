@@ -38,6 +38,7 @@ const MESSAGES = {
       INVALID_GENDER: 'Gender must be one of: male, female, or other',
       NO_VALID_FIELDS: 'No valid fields provided for update.',
       INVALID_ADDRESS: 'Address must be an object',
+      INVALID_DATE: 'Date must be a valid ISO date',
 
       WEAK_PASSWORD: 'Password must be at least 8 characters long',
       MISSING_PASSWORD: 'Password is required.',
@@ -66,7 +67,6 @@ const MESSAGES = {
       INVALID_SOCIAL_LINKS: 'Social links must be an object',
       INVALID_EXPERIENCE: 'Professional experience must be an array',
       INVALID_CERTIFICATIONS: 'Certifications must be an array',
-      INVALID_DATE: 'Experience start date must be a valid ISO date',
     },
   
     TOKEN: {

@@ -20,6 +20,7 @@ const MESSAGES = {
   
     SIGNUP: {
       EMAIL_IN_USE: 'An account with this email already exists.',
+      VAT_IN_USE: 'An account with this VAT number already exists.',
       MISSING_TERMS: 'You must accept the terms and privacy policy.',
       INVALID_SPECIALIZATION: 'No valid specialization was provided.',
       WRONG_ROLE: 'Invalid role specified for this signup type.',

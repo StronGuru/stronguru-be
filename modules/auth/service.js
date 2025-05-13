@@ -14,12 +14,14 @@ const { USER_ROLES } = require('../../constants/userRoles');
 const { filterValidSpecializations, assignSpecToProfessional } = require('../../helpers/SpecValidation');
 const throwError = require('../../helpers/throwError');
 
+const FRONT_END_URL = process.env.ORIGIN_FE;
+
 // POST /signup/professional
 exports.signupProfessional = async (data) => {
     let professional = null;
 
     
-    const { firstName, lastName, email, password, dateOfBirth, gender, phone, specializations, taxCode, pIva, contactEmail, contactPhone, address, acceptedTerms, acceptedPrivacy } = data;
+    const { email, specializations, pIva, acceptedTerms, acceptedPrivacy } = data;
 
     // Validate terms acceptance
     if (!acceptedTerms || !acceptedPrivacy) {
@@ -37,6 +39,12 @@ exports.signupProfessional = async (data) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         throwError(MESSAGES.SIGNUP.EMAIL_IN_USE, 400);
+    }
+
+    // Check if VAT NUMBER already exists
+    const existingVAT = await User.findOne({ pIva });
+    if (existingVAT) {
+        throwError(MESSAGES.SIGNUP.VAT_IN_USE, 400);
     }
 
     try {
@@ -75,6 +83,7 @@ exports.signupProfessional = async (data) => {
             to: professional.email,
             templateKey: 'REGISTRATION',
             dynamicData: {
+                frontEndUrl: FRONT_END_URL,
                 activationToken: activationToken
             }
         });
@@ -146,6 +155,7 @@ exports.signupUser = async (data) => {
             to: clientUser.email,
             templateKey: 'REGISTRATION',
             dynamicData: {
+                frontEndUrl: FRONT_END_URL,
                 activationToken: activationToken
             }
         });
@@ -316,6 +326,7 @@ exports.requestPasswordReset = async (email) => {
       to: user.email,
       templateKey: 'PASSWORD_RESET',
       dynamicData: {
+        frontEndUrl: FRONT_END_URL,
         resetToken: rawToken
       }
     });

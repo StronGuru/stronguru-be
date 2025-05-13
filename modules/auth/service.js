@@ -14,6 +14,8 @@ const { USER_ROLES } = require('../../constants/userRoles');
 const { filterValidSpecializations, assignSpecToProfessional } = require('../../helpers/SpecValidation');
 const throwError = require('../../helpers/throwError');
 
+const FRONT_END_URL = process.env.ORIGIN_FE;
+
 // POST /signup/professional
 exports.signupProfessional = async (data) => {
     let professional = null;
@@ -75,6 +77,7 @@ exports.signupProfessional = async (data) => {
             to: professional.email,
             templateKey: 'REGISTRATION',
             dynamicData: {
+                frontEndUrl: FRONT_END_URL,
                 activationToken: activationToken
             }
         });
@@ -146,6 +149,7 @@ exports.signupUser = async (data) => {
             to: clientUser.email,
             templateKey: 'REGISTRATION',
             dynamicData: {
+                frontEndUrl: FRONT_END_URL,
                 activationToken: activationToken
             }
         });
@@ -316,6 +320,7 @@ exports.requestPasswordReset = async (email) => {
       to: user.email,
       templateKey: 'PASSWORD_RESET',
       dynamicData: {
+        frontEndUrl: FRONT_END_URL,
         resetToken: rawToken
       }
     });

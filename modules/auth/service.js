@@ -21,7 +21,7 @@ exports.signupProfessional = async (data) => {
     let professional = null;
 
     
-    const { firstName, lastName, email, password, dateOfBirth, gender, phone, specializations, taxCode, pIva, contactEmail, contactPhone, address, acceptedTerms, acceptedPrivacy } = data;
+    const { email, specializations, pIva, acceptedTerms, acceptedPrivacy } = data;
 
     // Validate terms acceptance
     if (!acceptedTerms || !acceptedPrivacy) {
@@ -39,6 +39,12 @@ exports.signupProfessional = async (data) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         throwError(MESSAGES.SIGNUP.EMAIL_IN_USE, 400);
+    }
+
+    // Check if VAT NUMBER already exists
+    const existingVAT = await User.findOne({ pIva });
+    if (existingVAT) {
+        throwError(MESSAGES.SIGNUP.VAT_IN_USE, 400);
     }
 
     try {

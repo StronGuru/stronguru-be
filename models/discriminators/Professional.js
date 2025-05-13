@@ -14,7 +14,10 @@ const ProfessionalSchema = new mongoose.Schema({
     taxCode: { type: String },
 
     //Attività
-    pIva: { type: String },
+    pIva: { type: String,
+            required: true,
+            unique: true, 
+     },
     contactEmail: { type: String} ,
     contactPhone: { type: String },
 

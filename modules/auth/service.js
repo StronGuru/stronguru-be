@@ -219,7 +219,7 @@ exports.login = async (data, req) => {
 
     // Find existing device by deviceId cookie
     let existingDevice;
-    const deviceId = req.cookies.deviceId;
+    const deviceId = req.headers['x-device-id'];
     if (deviceId) {
         existingDevice = await UserDevices.findOne({ _id: deviceId, user: user._id });
     }

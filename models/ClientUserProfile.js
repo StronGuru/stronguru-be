@@ -2,6 +2,16 @@ const mongoose = require('mongoose');
 const CommonAddressSchema = require('./CommonAddress');
 
 const ClientUserProfileSchema = new mongoose.Schema({
+    clientUserId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
+    professionalId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
+    },
     firstName: {
         type: String,
         required: true,
@@ -27,14 +37,11 @@ const ClientUserProfileSchema = new mongoose.Schema({
         type: Date,
         required: false,
     },
-    createdBy: { 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-     }, // il professionista che lo ha creato
-  connectedUser: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User', default: null
-     }, // se il cliente ha un account
+    state: {
+        type: String,
+        enum: ['pending', 'invited', 'active'],
+        //default: 'invited'
+      },
     createdAt: {
         type: Date,
         default: Date.now,

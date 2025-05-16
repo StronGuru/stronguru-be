@@ -17,9 +17,6 @@ module.exports = (roles = []) => {
       if (!user) return res.status(401).json({ msg: MESSAGES.AUTH.TOKEN_MISSING });
       
       const deviceId = req.headers['x-device-id'];
-      
-      console.log("deviceId: " + deviceId);
-      console.log("userId: " + user.id);
 
       const deviceExists = await UserDevices.findOne({user: user.id, _id: deviceId });
       if (!deviceExists) return res.status(401).json({ msg: MESSAGES.AUTH.DEVICE_INVALID });

@@ -57,7 +57,7 @@ module.exports = {
           in: 'path',
           required: true,
           schema: { type: 'string' },
-          description: "ID of the user",
+          description: 'ID of the user',
         },
       ],
       requestBody: {
@@ -78,9 +78,7 @@ module.exports = {
         },
       },
       responses: {
-        200: {
-          description: 'Ambassador status updated',
-        },
+        200: { description: 'Ambassador status updated' },
         400: { description: 'Invalid value' },
         403: { description: 'Admin access required' },
         404: { description: 'User not found' },
@@ -109,6 +107,14 @@ module.exports = {
       responses: {
         200: {
           description: 'List of ambassadors retrieved successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/User' },
+              },
+            },
+          },
         },
         403: { description: 'Admin access required' },
         500: { description: 'Server error' },
@@ -138,15 +144,23 @@ module.exports = {
               type: 'object',
               required: ['oldPassword', 'newPassword'],
               properties: {
-                oldPassword: { type: 'string', example: 'password123' },
-                newPassword: { type: 'string', example: 'newPassword123' },
+                oldPassword: {
+                  type: 'string',
+                  example: 'currentPassword123',
+                  description: 'Must not be empty',
+                },
+                newPassword: {
+                  $ref: '#/components/schemas/Password',
+                },
               },
             },
           },
         },
       },
       responses: {
-        200: { description: 'Password updated successfully' },
+        200: {
+          description: 'Password updated successfully',
+        },
         400: { description: 'Missing parameters or empty password fields' },
         401: { description: 'Incorrect old password' },
         403: { description: 'Unauthorized to update this password' },
@@ -166,16 +180,7 @@ module.exports = {
           description: 'Settings retrieved',
           content: {
             'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  user: { type: 'string' },
-                  darkmode: { type: 'boolean' },
-                  language: { type: 'string' },
-                  dateTimeFormat: { type: 'string', enum: ['12h', '24h'] },
-                  timeZone: { type: 'string' },
-                },
-              },
+              schema: { $ref: '#/components/schemas/UserSettings' },
             },
           },
         },
@@ -193,10 +198,24 @@ module.exports = {
             schema: {
               type: 'object',
               properties: {
-                darkmode: { type: 'boolean', example: true },
-                language: { type: 'string', example: 'it' },
-                dateTimeFormat: { type: 'string', enum: ['12h', '24h'] },
-                timeZone: { type: 'string', example: 'Europe/Rome' },
+                darkmode: {
+                  type: 'boolean',
+                  example: true,
+                },
+                language: {
+                  type: 'string',
+                  enum: ['en', 'it', 'de', 'fr'],
+                  example: 'it',
+                },
+                dateTimeFormat: {
+                  type: 'string',
+                  enum: ['12h', '24h'],
+                  example: '24h',
+                },
+                timeZone: {
+                  type: 'string',
+                  example: 'Europe/Rome',
+                },
               },
             },
           },

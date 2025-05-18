@@ -1,18 +1,47 @@
 module.exports = {
+  // 🔑 Shared schema fragments
+  Password: {
+    type: 'string',
+    minLength: 8,
+    pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$',
+    description: 'Password must include at least 1 uppercase, 1 lowercase, 1 number, and 1 special character',
+    example: 'MyP@ssword123',
+  },
+
+  Gender: {
+    type: 'string',
+    enum: ['male', 'female', 'other'],
+    example: 'female',
+  },
+
+  DateOfBirth: {
+    type: 'string',
+    format: 'date',
+    example: '1990-01-01',
+  },
+
+  Phone: {
+    type: 'string',
+    example: '+393334445556',
+    description: 'User phone number',
+  },
+
+  // 👤 Base user schema
   User: {
     type: 'object',
     properties: {
-      _id: { type: 'string', description: 'Unique identifier of the user' },
-      firstName: { type: 'string', description: 'First name of the user' },
-      lastName: { type: 'string', description: 'Last name of the user' },
-      email: { type: 'string', description: 'Email address' },
-      role: { type: 'string', description: 'User role (e.g., admin, professional, user)' },
-      dateOfBirth: { type: 'string', format: 'date', description: 'Date of birth' },
-      gender: { type: 'string', description: 'Gender' },
-      phone: { type: 'string', description: 'Phone number' },
+      _id: { type: 'string' },
+      firstName: { type: 'string' },
+      lastName: { type: 'string' },
+      email: { type: 'string' },
+      role: { type: 'string' },
+      dateOfBirth: { $ref: '#/components/schemas/DateOfBirth' },
+      gender: { $ref: '#/components/schemas/Gender' },
+      phone: { $ref: '#/components/schemas/Phone' },
     },
   },
 
+  // 🧑‍⚕️ Professional
   Professional: {
     allOf: [
       { $ref: '#/components/schemas/User' },
@@ -46,26 +75,23 @@ module.exports = {
               other: { type: 'string' },
             },
           },
-          ambassador: {
-            type: 'boolean',
-            description: 'Indicates whether the professional is an ambassador',
-          },
+          ambassador: { type: 'boolean' },
         },
       },
     ],
   },
 
+  // 🧘 ClientUser
   ClientUser: {
     allOf: [
       { $ref: '#/components/schemas/User' },
       {
         type: 'object',
-        description: 'ClientUser-specific properties',
         properties: {
           healthData: {
             type: 'object',
             properties: {
-              height: { type: 'number' }, 
+              height: { type: 'number' },
               weight: { type: 'number' },
             },
           },
@@ -99,8 +125,8 @@ module.exports = {
       },
     ],
   },
-  
 
+  // 💻 UserDevice
   UserDevice: {
     type: 'object',
     properties: {
@@ -112,6 +138,24 @@ module.exports = {
       refreshToken: { type: 'string' },
       deviceType: { type: 'string' },
       isActive: { type: 'boolean' },
+    },
+  },
+
+  // ⚙️ UserSettings
+  UserSettings: {
+    type: 'object',
+    properties: {
+      user: { type: 'string' },
+      darkmode: { type: 'boolean' },
+      language: {
+        type: 'string',
+        enum: ['en', 'it', 'de', 'fr'],
+      },
+      dateTimeFormat: {
+        type: 'string',
+        enum: ['12h', '24h'],
+      },
+      timeZone: { type: 'string' },
     },
   },
 };

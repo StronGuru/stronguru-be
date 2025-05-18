@@ -72,29 +72,52 @@ module.exports = {
             schema: {
               type: 'object',
               properties: {
-                firstName: { type: 'string', example: 'Mario' },
-                lastName: { type: 'string', example: 'Rossi' },
-                phone: { type: 'string', example: '3216549870' },
-                biography: {
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
+                phone: { $ref: '#/components/schemas/Phone' },
+                gender: { $ref: '#/components/schemas/Gender' },
+                contactEmail: {
                   type: 'string',
-                  example: 'Certified nutritionist and trainer with 10 years of experience.',
+                  format: 'email',
+                  example: 'studio@pro.it',
                 },
-                specializations: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  example: ['nutritionist'],
-                },
-                contactEmail: { type: 'string', example: 'studio@gmail.com' },
-                contactPhone: { type: 'string', example: '3216549870' },
-                languages: { type: 'array', items: { type: 'string' }, example: ['en', 'it'] },
+                contactPhone: { type: 'string', example: '+393331112233' },
                 address: {
                   type: 'object',
                   properties: {
-                    street: { type: 'string', example: 'Via Roma 123' },
-                    city: { type: 'string', example: 'Milano' },
-                    province: { type: 'string', example: 'MI' },
-                    cap: { type: 'string', example: '20100' },
-                    country: { type: 'string', example: 'Italy' },
+                    street: { type: 'string' },
+                    city: { type: 'string' },
+                    cap: { type: 'string' },
+                    province: { type: 'string' },
+                    country: { type: 'string' },
+                  },
+                },
+                languages: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['it', 'en'],
+                },
+                professionalExp: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['5 years at X', 'Freelancer since 2019'],
+                },
+                certifications: {
+                  type: 'array',
+                  items: { type: 'string' },
+                },
+                expStartDate: {
+                  type: 'string',
+                  format: 'date',
+                  example: '2015-06-01',
+                },
+                socialLinks: {
+                  type: 'object',
+                  properties: {
+                    instagram: { type: 'string', example: 'https://instagram.com/pro' },
+                    linkedin: { type: 'string' },
+                    facebook: { type: 'string' },
+                    other: { type: 'string' },
                   },
                 },
               },
@@ -134,8 +157,8 @@ module.exports = {
               properties: {
                 password: {
                   type: 'string',
-                  example: 'password123',
                   description: 'Current password to confirm account deletion',
+                  example: 'yourPassword123',
                 },
               },
             },

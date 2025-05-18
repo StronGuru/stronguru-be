@@ -19,24 +19,55 @@ const MESSAGES = {
     },
   
     SIGNUP: {
-      EMAIL_IN_USE: 'An account with this email already exists.',
       VAT_IN_USE: 'An account with this VAT number already exists.',
       MISSING_TERMS: 'You must accept the terms and privacy policy.',
+      MISSING_PRIVACY: 'You must accept the privacy policy',
       INVALID_SPECIALIZATION: 'No valid specialization was provided.',
-      WRONG_ROLE: 'Invalid role specified for this signup type.',
+      EMAIL_IN_USE: 'An account with this email already exists.',
       SUCCESS_USER: 'User account created successfully. Please check your email to activate it.',
       SUCCESS_PROFESSIONAL: 'Professional account created successfully. Please verify via email.',
+      WRONG_ROLE: 'Invalid role specified for this signup type.',
       AMBASSADOR_STATUS_UPDATED: (value) => `Ambassador status has been updated to ${value ? 'active' : 'inactive'}.`
     },
   
     VALIDATION: {
-      REQUIRED_FIELDS: 'Some required fields are missing or invalid.',
-      PASSWORD_MISMATCH: 'Incorrect current password.',
-      MISSING_PASSWORD: 'Password is required.',
+      REQUIRED_FIRST_NAME: 'First name is required',
+      REQUIRED_LAST_NAME: 'Last name is required',
+      INVALID_EMAIL: 'Invalid email format',
+      REQUIRED_DOB: 'Date of birth is required',
+      REQUIRED_PHONE: 'Phone number is required',
+      INVALID_GENDER: 'Gender must be one of: male, female, or other',
       NO_VALID_FIELDS: 'No valid fields provided for update.',
-      INVALID_PAYLOAD: 'Invalid or incomplete request payload.',
+      INVALID_ADDRESS: 'Address must be an object',
+      INVALID_DATE: 'Date must be a valid ISO date',
+
+      WEAK_PASSWORD: 'Password must be at least 8 characters long',
+      MISSING_PASSWORD: 'Password is required.',
+      PASSWORD_MISMATCH: 'Incorrect current password.',
+      PASSWORD_REUSE_NOT_ALLOWED: 'New password must be different from the previous one.',
+      MISSING_OLD_PASSWORD: 'Current password is required',
+      PASSWORD_COMPLEXITY: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+      
       INVALID_AMBASSADOR_VALUE: 'Invalid ambassador value. Must be true or false.',
-      PASSWORD_REUSE_NOT_ALLOWED: 'New password must be different from the previous one.'
+      VAT_INVALID_LENGTH: 'VAT number must be between 11 and 13 characters',
+      TAXCODE_INVALID_LENGTH: 'Tax code must be at least 11 characters',
+      RESET_TOKEN_REQUIRED: 'Reset token is required',
+
+      INVALID_LANGUAGE: 'Invalid language option',
+      INVALID_LANGUAGES: 'Languages must be an array',
+      INVALID_DARKMODE: 'Darkmode must be a boolean value',
+      INVALID_DATETIME_FORMAT: 'Time format must be either 12h or 24h',
+      INVALID_TIMEZONE: 'Timezone must be a non-empty string',
+      INVALID_PREFERENCES: 'Preferences must be an array',
+
+      INVALID_FITNESS_LEVEL: 'Fitness level must be beginner, intermediate or advanced',
+      INVALID_ACTIVITY_LEVEL: 'Activity level must be sedentary, lightly_active, moderately_active or very_active',
+      INVALID_GOALS: 'Goals must be an array',
+      INVALID_CURRENT_SPORTS: 'Current sports must be an array',
+      INVALID_COMPETITIVE_LEVEL: 'Competitive level must be beginner, intermediate or advanced',
+      INVALID_SOCIAL_LINKS: 'Social links must be an object',
+      INVALID_EXPERIENCE: 'Professional experience must be an array',
+      INVALID_CERTIFICATIONS: 'Certifications must be an array',
     },
   
     TOKEN: {

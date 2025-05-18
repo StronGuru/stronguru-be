@@ -259,8 +259,7 @@ exports.login = async (data, req) => {
 };
 
 // POST /auth/refresh-token
-exports.refreshToken = async (cookies) => {
-    const {refreshToken, deviceId} = cookies;
+exports.refreshToken = async ({refreshToken, deviceId}) => {
 
     // Check if both tokens are present
     if (!refreshToken || !deviceId) {

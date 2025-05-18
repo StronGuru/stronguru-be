@@ -189,25 +189,25 @@ module.exports = {
 
   '/auth/refresh-token': {
     post: {
-      summary: 'Generate a new access token using the refresh token',
+      summary: 'Generate a new access token using the refresh token and device ID',
       tags: ['Auth'],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['refreshToken'],
-              properties: {
-                refreshToken: {
-                  type: 'string',
-                  example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-                },
-              },
-            },
-          },
+      parameters: [
+        {
+          name: 'x-device-id',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Device ID associated with the session',
+          example: '664567890abcdef123456789'
         },
-      },
+        {
+          name: 'refreshToken',
+          in: 'cookie',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Refresh token stored in secure HTTP-only cookie',
+        }
+      ],
       responses: {
         200: {
           description: 'New access token issued',
@@ -216,15 +216,15 @@ module.exports = {
               schema: {
                 type: 'object',
                 properties: {
-                  token: { type: 'string', example: 'newAccessToken' },
-                  refreshToken: { type: 'string', example: 'newRefreshToken' },
-                },
-              },
-            },
-          },
+                  accessToken: { type: 'string', example: 'newAccessToken' },
+                }
+              }
+            }
+          }
         },
-        401: { description: 'Invalid or missing refresh token' },
-        500: { description: 'Internal server error' },
+        400: { description: 'Missing token or device ID' },
+        403: { description: 'Invalid device or token' },
+        500: { description: 'Internal server error' }
       },
     },
   },

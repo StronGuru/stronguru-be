@@ -41,7 +41,7 @@ module.exports = {
       parameters: [
         {
           in: 'path',
-          name: 'id',
+          name: 'deviceId',
           required: true,
           description: 'Device ID',
           schema: { type: 'string', example: '664567890abcdef123456789' },
@@ -68,7 +68,7 @@ module.exports = {
       parameters: [
         {
           in: 'path',
-          name: 'id',
+          name: 'deviceId',
           required: true,
           description: 'ID of the device to delete',
           schema: { type: 'string', example: '664567890abcdef123456789' },

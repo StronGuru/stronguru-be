@@ -48,7 +48,10 @@ exports.login = async (req, res, next) => {
 
 exports.refreshToken = async (req, res, next) => {
   try {
-    const result = await AuthService.refreshToken(req.cookies);
+    const refreshToken = req.cookies.refreshToken;
+    const deviceId = req.headers['x-device-id'];
+
+    const result = await AuthService.refreshToken({ refreshToken, deviceId });
 
     res.cookie('refreshToken', req.cookies.refreshToken, {
       httpOnly: true,

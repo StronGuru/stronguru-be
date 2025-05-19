@@ -39,20 +39,6 @@ exports.updateProfessionalValidator = [
     .isArray()
     .withMessage(MESSAGES.VALIDATION.INVALID_LANGUAGES),
 
-  body('professionalExp')
-    .optional()
-    .isArray()
-    .withMessage(MESSAGES.VALIDATION.INVALID_EXPERIENCE),
-
-  body('certifications')
-    .optional()
-    .isArray()
-    .withMessage(MESSAGES.VALIDATION.INVALID_CERTIFICATIONS),
-
-  body('expStartDate')
-    .optional()
-    .isISO8601()
-    .withMessage(MESSAGES.VALIDATION.INVALID_DATE),
 
   // Optional social & address info
   body('socialLinks')
@@ -64,4 +50,51 @@ exports.updateProfessionalValidator = [
     .optional()
     .isObject()
     .withMessage(MESSAGES.VALIDATION.INVALID_ADDRESS),
+
+  // Qualifications validation
+  body('qualifications').optional().isArray().withMessage(MESSAGES.VALIDATION.INVALID_QUALIFICATIONS),
+  body('qualifications.*.degreeTitle').optional()
+    .isString()
+    .notEmpty()
+    .withMessage(MESSAGES.VALIDATION.INVALID_DEGREE_TITLE),
+  body('qualifications.*.institution').optional()
+    .isString()
+    .notEmpty()
+    .withMessage(MESSAGES.VALIDATION.INVALID_INSTITUTION),
+  body('qualifications.*.fieldOfStudy').optional()
+    .isString()
+    .notEmpty()
+    .withMessage(MESSAGES.VALIDATION.INVALID_FIELD_OF_STUDY),
+  body('qualifications.*.startDate').optional()
+    .isISO8601()
+    .withMessage(MESSAGES.VALIDATION.INVALID_DATE),
+  body('qualifications.*.completionDate').optional()
+    .isISO8601()
+    .withMessage(MESSAGES.VALIDATION.INVALID_DATE),
+
+  // Certifications validation
+  body('certifications').optional().isArray().withMessage(MESSAGES.VALIDATION.INVALID_CERTIFICATIONS),
+  body('certifications.*.certificationName').optional()
+    .isString()
+    .notEmpty()
+    .withMessage(MESSAGES.VALIDATION.INVALID_CERTIFICATION_NAME),
+  body('certifications.*.issuingOrganization').optional()
+    .isString()
+    .notEmpty()
+    .withMessage(MESSAGES.VALIDATION.INVALID_ISSUING_ORGANIZATION),
+  body('certifications.*.level').optional()
+    .isString()
+    .withMessage(MESSAGES.VALIDATION.INVALID_CERTIFICATION_LEVEL),
+  body('certifications.*.certificationId').optional()
+    .isString()
+    .withMessage(MESSAGES.VALIDATION.INVALID_CERTIFICATION_ID),
+  body('certifications.*.certificationUrl').optional()
+    .isURL()
+    .withMessage(MESSAGES.VALIDATION.INVALID_URL),
+  body('certifications.*.issueDate').optional()
+    .isISO8601()
+    .withMessage(MESSAGES.VALIDATION.INVALID_DATE),
+  body('certifications.*.expirationDate').optional()
+    .isISO8601()
+    .withMessage(MESSAGES.VALIDATION.INVALID_DATE),
 ];

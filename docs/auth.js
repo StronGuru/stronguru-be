@@ -82,7 +82,7 @@ module.exports = {
               properties: {
                 firstName: { type: 'string', example: 'Mario' },
                 lastName: { type: 'string', example: 'Rossi' },
-                email: { type: 'string', example: 'mario.rossi@studio.com' },
+                email: { type: 'string', format: 'email', example: 'mario.rossi@studio.com' },
                 password: { $ref: '#/components/schemas/Password' },
                 dateOfBirth: { $ref: '#/components/schemas/DateOfBirth' },
                 gender: { $ref: '#/components/schemas/Gender' },
@@ -92,7 +92,87 @@ module.exports = {
                 specializations: {
                   type: 'array',
                   items: { type: 'string' },
-                  example: ['trainer', 'nutritionist'],
+                  example: ['trainer', 'nutritionist']
+                },
+                qualifications: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      degreeTitle: {
+                        type: 'string',
+                        description: 'Academic degree (e.g. Diploma, Bachelor\'s Degree, Master\'s Degree, PhD, etc.)',
+                        example: 'Master\'s Degree'
+                      },
+                      institution: {
+                        type: 'string',
+                        description: 'Name of the institution that issued the degree',
+                        example: 'University of Milan'
+                      },
+                      fieldOfStudy: {
+                        type: 'string',
+                        description: 'Field of study (e.g. Sport Sciences, Nutrition and Food Sciences, etc.)',
+                        example: 'Sport Sciences'
+                      },
+                      startDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Start date of studies',
+                        example: '2018-09-01'
+                      },
+                      completionDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Date when the degree was obtained',
+                        example: '2021-07-15'
+                      }
+                    }
+                  }
+                },
+                certifications: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      certificationName: {
+                        type: 'string',
+                        description: 'Name of the certification',
+                        example: 'Personal Trainer Certification'
+                      },
+                      issuingOrganization: {
+                        type: 'string',
+                        description: 'Name of the organization that issued the certification',
+                        example: 'FIPE'
+                      },
+                      level: {
+                        type: 'string',
+                        description: 'Level or grade of the certification',
+                        example: 'Professional'
+                      },
+                      certificationId: {
+                        type: 'string',
+                        description: 'Official identification number of the certification',
+                        example: 'PT2023-1234'
+                      },
+                      certificationUrl: {
+                        type: 'string',
+                        description: 'URL link to the certification',
+                        example: 'https://certification-verify.org/PT2023-1234'
+                      },
+                      issueDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Date when the certification was issued',
+                        example: '2023-01-15'
+                      },
+                      expirationDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Expiration date of the certification',
+                        example: '2026-01-15'
+                      }
+                    }
+                  }
                 },
                 contactEmail: {
                   type: 'string',
@@ -107,12 +187,12 @@ module.exports = {
                   type: 'string',
                   minLength: 11,
                   maxLength: 13,
-                  example: '12345678901',
+                  example: '12345678901'
                 },
                 taxCode: {
                   type: 'string',
                   minLength: 11,
-                  example: 'RSSMRA90A01H501U',
+                  example: 'RSSMRA90A01H501U'
                 },
                 address: {
                   type: 'object',
@@ -121,23 +201,26 @@ module.exports = {
                     city: { type: 'string', example: 'Milano' },
                     province: { type: 'string', example: 'MI' },
                     cap: { type: 'string', example: '20100' },
-                    country: { type: 'string', example: 'Italy' },
-                  },
+                    country: { type: 'string', example: 'Italy' }
+                  }
                 },
-              },
-            },
-          },
-        },
+                languages: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['it', 'en']
+                }
+              }
+            }
+          }
+        }
       },
       responses: {
         201: { description: 'Professional registered successfully' },
-        400: {
-          description: 'Missing or invalid fields (terms, privacy, specialization)',
-        },
+        400: { description: 'Missing or invalid fields (terms, privacy, specialization)' },
         409: { description: 'Email already in use' },
-        500: { description: 'Server error during registration' },
-      },
-    },
+        500: { description: 'Server error during registration' }
+      }
+    }
   },
 
   '/auth/signup/user': {

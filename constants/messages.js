@@ -68,6 +68,19 @@ const MESSAGES = {
       INVALID_SOCIAL_LINKS: 'Social links must be an object',
       INVALID_EXPERIENCE: 'Professional experience must be an array',
       INVALID_CERTIFICATIONS: 'Certifications must be an array',
+      // Qualifications validation messages
+      INVALID_QUALIFICATIONS: 'Qualifications must be an array',
+      INVALID_DEGREE_TITLE: 'Degree title is required and must be a valid string',
+      INVALID_INSTITUTION: 'Institution is required and must be a valid string',
+      INVALID_FIELD_OF_STUDY: 'Field of study is required and must be a valid string',
+  
+      // Certifications validation messages
+      INVALID_CERTIFICATION_NAME: 'Certification name is required and must be a valid string',
+      INVALID_ISSUING_ORGANIZATION: 'Issuing organization is required and must be a valid string',
+      INVALID_CERTIFICATION_LEVEL: 'Certification level must be a valid string',
+      INVALID_CERTIFICATION_ID: 'Certification ID must be a valid string',
+      INVALID_URL: 'The provided URL is not valid',
+      INVALID_CERTIFICATE: 'Certificate must be a valid file',
     },
   
     TOKEN: {

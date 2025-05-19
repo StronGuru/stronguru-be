@@ -72,29 +72,130 @@ module.exports = {
             schema: {
               type: 'object',
               properties: {
-                firstName: { type: 'string', example: 'Mario' },
-                lastName: { type: 'string', example: 'Rossi' },
-                phone: { type: 'string', example: '3216549870' },
-                biography: {
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
+                phone: { $ref: '#/components/schemas/Phone' },
+                gender: { $ref: '#/components/schemas/Gender' },
+                contactEmail: {
                   type: 'string',
-                  example: 'Certified nutritionist and trainer with 10 years of experience.',
+                  format: 'email',
+                  example: 'studio@pro.it',
                 },
-                specializations: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  example: ['nutritionist'],
-                },
-                contactEmail: { type: 'string', example: 'studio@gmail.com' },
-                contactPhone: { type: 'string', example: '3216549870' },
-                languages: { type: 'array', items: { type: 'string' }, example: ['en', 'it'] },
+                contactPhone: { type: 'string', example: '+393331112233' },
                 address: {
                   type: 'object',
                   properties: {
-                    street: { type: 'string', example: 'Via Roma 123' },
-                    city: { type: 'string', example: 'Milano' },
-                    province: { type: 'string', example: 'MI' },
-                    cap: { type: 'string', example: '20100' },
-                    country: { type: 'string', example: 'Italy' },
+                    street: { type: 'string' },
+                    city: { type: 'string' },
+                    cap: { type: 'string' },
+                    province: { type: 'string' },
+                    country: { type: 'string' },
+                  },
+                },
+                languages: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['it', 'en'],
+                },
+                qualifications: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      degreeTitle: {
+                        type: 'string',
+                        description: 'Academic degree (e.g. Diploma, Bachelor\'s Degree, Master\'s Degree, PhD, etc.)',
+                        required: true,
+                        example: 'Master\'s Degree'
+                      },
+                      institution: {
+                        type: 'string',
+                        description: 'Name of the institution that issued the degree',
+                        required: true,
+                        example: 'University of Milan'
+                      },
+                      fieldOfStudy: {
+                        type: 'string',
+                        description: 'Field of study (e.g. Sport Sciences, Nutrition and Food Sciences, etc.)',
+                        required: true,
+                        example: 'Sport Sciences'
+                      },
+                      startDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Start date of studies',
+                        required: true,
+                        example: '2018-09-01'
+                      },
+                      completionDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Date when the degree was obtained',
+                        required: true,
+                        example: '2021-07-15'
+                      }
+                    }
+                  }
+                },
+                certifications: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      certificationName: {
+                        type: 'string',
+                        description: 'Name of the certification',
+                        required: true,
+                        example: 'Personal Trainer Certification'
+                      },
+                      issuingOrganization: {
+                        type: 'string',
+                        description: 'Name of the organization that issued the certification',
+                        required: true,
+                        example: 'FIPE'
+                      },
+                      level: {
+                        type: 'string',
+                        description: 'Level or grade of the certification (e.g. B2, Basic Level, Professional)',
+                        required: false,
+                        example: 'Professional'
+                      },
+                      certificationId: {
+                        type: 'string',
+                        description: 'Official identification number of the certification',
+                        required: false,
+                        example: 'PT2023-1234'
+                      },
+                      certificationUrl: {
+                        type: 'string',
+                        description: 'URL link to the certification',
+                        required: false,
+                        example: 'https://certification-verify.org/PT2023-1234'
+                      },
+                      issueDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Date when the certification was issued',
+                        required: true,
+                        example: '2023-01-15'
+                      },
+                      expirationDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Expiration date of the certification (if applicable)',
+                        required: false,
+                        example: '2026-01-15'
+                      }
+                    }
+                  }
+                },
+                socialLinks: {
+                  type: 'object',
+                  properties: {
+                    instagram: { type: 'string', example: 'https://instagram.com/pro' },
+                    linkedin: { type: 'string' },
+                    facebook: { type: 'string' },
+                    other: { type: 'string' },
                   },
                 },
               },
@@ -134,8 +235,8 @@ module.exports = {
               properties: {
                 password: {
                   type: 'string',
-                  example: 'password123',
                   description: 'Current password to confirm account deletion',
+                  example: 'yourPassword123',
                 },
               },
             },

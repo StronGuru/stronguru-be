@@ -8,7 +8,6 @@ module.exports = (roles = []) => {
   return (req, res, next) => {
     passport.authenticate('jwt', { session: false }, async (err, user) => {
 
-      //aggiunta messaggi di errore più dettagliati -Ms
       if (err) {
         console.error('Auth error:', err);
         return res.status(500).json({ msg: MESSAGES.GENERAL.SERVER_ERROR });

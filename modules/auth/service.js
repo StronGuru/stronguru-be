@@ -36,13 +36,13 @@ exports.signupProfessional = async (data) => {
         
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingProfessional = await Professional.findOne({ email });
+    if (existingProfessional) {
         throwError(MESSAGES.SIGNUP.EMAIL_IN_USE, 400);
     }
 
     // Check if VAT NUMBER already exists
-    const existingVAT = await User.findOne({ pIva });
+    const existingVAT = await Professional.findOne({ pIva });
     if (existingVAT) {
         throwError(MESSAGES.SIGNUP.VAT_IN_USE, 400);
     }
@@ -111,7 +111,7 @@ exports.signupProfessional = async (data) => {
 exports.signupUser = async (data) => {
     let clientUser = null;
 
-    const { firstName, lastName, email, password, dateOfBirth, gender, phone, acceptedTerms, acceptedPrivacy } = data;
+    const { email, acceptedTerms, acceptedPrivacy } = data;
 
     // Validate terms acceptance
     if (!acceptedTerms || !acceptedPrivacy) {
@@ -119,8 +119,8 @@ exports.signupUser = async (data) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const existingClientUser = await ClientUser.findOne({ email });
+    if (existingClientUser) {
         throwError(MESSAGES.SIGNUP.EMAIL_IN_USE, 400);
     }
 
@@ -183,19 +183,21 @@ exports.login = async (data, req) => {
     const { email, password } = data;
     const deviceType = req.headers['x-device-type'] || 'unknown';
 
+    
+    if (deviceType === 'unknown') {
+        throwError(`${MESSAGES.GENERAL.DEVICE_TYPE_NOT_VALID}: ${deviceType}`, 500)
+    }
+
     // Basic validation
     if (!email || !password) {
         throwError(MESSAGES.AUTH.MISSING_CREDENTIALS, 400);
     }
 
     // Find user by email and verify password
-    const user = await User.findOne({ email });
+    const user = deviceType === 'desktop' ? await Professional.findOne({ email }) : await ClientUser.findOne({ email });
+
     if (!user || !(await user.comparePassword(password))) {
         throwError(MESSAGES.AUTH.INVALID_CREDENTIALS, 400);
-    }
-
-    if (deviceType === 'unknown') {
-        throwError(`${MESSAGES.GENERAL.DEVICE_TYPE_NOT_VALID}: ${deviceType}`, 500)
     }
 
     // Check device type against role
@@ -257,8 +259,7 @@ exports.login = async (data, req) => {
 };
 
 // POST /auth/refresh-token
-exports.refreshToken = async (cookies) => {
-    const {refreshToken, deviceId} = cookies;
+exports.refreshToken = async ({refreshToken, deviceId}) => {
 
     // Check if both tokens are present
     if (!refreshToken || !deviceId) {
@@ -305,7 +306,15 @@ exports.logout = async (cookies) => {
 };
 
 exports.requestPasswordReset = async (email) => {
-    const user = await User.findOne({ email });
+    const deviceType = req.headers['x-device-type'] || 'unknown';
+
+    if (deviceType === 'unknown') {
+        throwError(`${MESSAGES.GENERAL.DEVICE_TYPE_NOT_VALID}: ${deviceType}`, 500)
+    }
+
+    // Find user by email and verify password
+    const user = deviceType === 'desktop' ? await Professional.findOne({ email }) : await ClientUser.findOne({ email });
+
   
     // Per evitare user enumeration: restituiamo messaggio generico anche se utente non trovato o non verificato
     if (!user || !user.isVerified) {

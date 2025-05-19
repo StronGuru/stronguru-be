@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs'); // Per la gestione delle password
 const jwt = require('jsonwebtoken'); // Per la gestione dei token JWT
 const { USER_ROLES } = require('../constants/userRoles');
 const AddressSchema = require('./CommonAddress');
-const SocialLinksSchema = require('./SocialLinks');
+const SocialLinksSchema = require('./schemas/SocialLinks');
 
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema({
     email: { 
         type: String, 
         required: true, 
-        unique: true, 
         match: [/^\S+@\S+\.\S+$/, 'Email non valida']
     },
 
@@ -49,4 +48,5 @@ userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
+userSchema.index({ email: 1, role: 1 }, { unique: true });
 module.exports = mongoose.model('User', userSchema);

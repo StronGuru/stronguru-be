@@ -12,21 +12,7 @@ module.exports = {
             'application/json': {
               schema: {
                 type: 'array',
-                items: {
-                  $ref: '#/components/schemas/ClientUser',
-                },
-                example: [
-                  {
-                    _id: '6634567890abcdef12345678',
-                    firstName: 'Anna',
-                    lastName: 'Bianchi',
-                    email: 'clientUser1@example.com',
-                    role: 'user',
-                    dateOfBirth: '1995-04-10',
-                    gender: 'female',
-                    phone: '3216549871',
-                  },
-                ],
+                items: { $ref: '#/components/schemas/ClientUser' },
               },
             },
           },
@@ -42,18 +28,14 @@ module.exports = {
     get: {
       summary: 'Retrieve a clientUser by ID',
       tags: ['ClientUser'],
-      description: 'Returns the details of a specific clientUser by their ID.',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
           in: 'path',
           required: true,
+          schema: { type: 'string' },
           description: 'ID of the clientUser to retrieve',
-          schema: {
-            type: 'string',
-            example: '6634567890abcdef12345678',
-          },
         },
       ],
       responses: {
@@ -61,9 +43,7 @@ module.exports = {
           description: 'ClientUser successfully retrieved',
           content: {
             'application/json': {
-              schema: {
-                $ref: '#/components/schemas/ClientUser',
-              },
+              schema: { $ref: '#/components/schemas/ClientUser' },
             },
           },
         },
@@ -76,18 +56,14 @@ module.exports = {
     patch: {
       summary: 'Update a clientUser profile',
       tags: ['ClientUser'],
-      description: 'Updates allowed fields of the clientUser profile. Only the user themselves can update their data.',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
           in: 'path',
           required: true,
+          schema: { type: 'string' },
           description: 'ID of the clientUser to update',
-          schema: {
-            type: 'string',
-            example: '6634567890abcdef12345678',
-          },
         },
       ],
       requestBody: {
@@ -99,54 +75,58 @@ module.exports = {
               properties: {
                 firstName: { type: 'string', example: 'Mario' },
                 lastName: { type: 'string', example: 'Rossi' },
-                phone: { type: 'string', example: '3216549870' },
+                phone: { $ref: '#/components/schemas/Phone' },
+                gender: { $ref: '#/components/schemas/Gender' },
                 address: {
                   type: 'object',
                   properties: {
-                    street: { type: 'string', example: 'Via Roma 123' },
-                    city: { type: 'string', example: 'Milano' },
-                    province: { type: 'string', example: 'MI' },
-                    cap: { type: 'string', example: '20100' },
-                    country: { type: 'string', example: 'Italy' },
+                    street: { type: 'string' },
+                    city: { type: 'string' },
+                    province: { type: 'string' },
+                    cap: { type: 'string' },
+                    country: { type: 'string' },
                   },
                 },
-                dateOfBirth: { type: 'string', format: 'date', example: '1990-05-15' },
-                biography: { type: 'string', example: 'Gym-lover from 10 years.' },
-                profileImg: { type: 'string', example: 'https://example.com/images/profile.jpg' },
-                socialLinks: { type: 'array', items: { type: 'string' }, example: ['https://facebook.com/mario', 'https://twitter.com/mario'] },
-                gender: { type: 'string', example: 'male' },
-                healthData: {
+                fitnessLevel: {
+                  type: 'string',
+                  enum: ['beginner', 'intermediate', 'advanced'],
+                },
+                activityLevel: {
+                  type: 'string',
+                  enum: ['sedentary', 'lightly_active', 'moderately_active', 'very_active'],
+                },
+                goals: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  enum: ['weight_loss', 'muscle_gain', 'endurance', 'flexibility'],
+                },
+                preferences: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  enum: ['vegan', 'vegetarian', 'gluten_free', 'dairy_free'],
+                },
+                currentSports: {
+                  type: 'array',
+                  items: { type: 'string' },
+                },
+                competitiveLevel: {
+                  type: 'string',
+                  enum: ['beginner', 'intermediate', 'advanced'],
+                },
+                socialLinks: {
                   type: 'object',
-                  properties: {
-                    height: { type: 'number', example: 180 },
-                    weight: { type: 'number', example: 75 },
-                  },
+                  additionalProperties: { type: 'string' },
                 },
-                fitnessLevel: { type: 'string', enum: ['beginner', 'intermediate', 'advanced'], example: 'intermediate' },
-                goals: { type: 'array', items: { type: 'string' }, enum: ['weight_loss', 'muscle_gain', 'endurance', 'flexibility'], example: ['muscle_gain'] },
-                activityLevel: { type: 'string', enum: ['sedentary', 'lightly_active', 'moderately_active', 'very_active'], example: 'moderately_active' },
-                preferences: { type: 'array', items: { type: 'string' }, enum: ['vegan', 'vegetarian', 'gluten_free', 'dairy_free'], example: ['vegetarian'] },
-                currentSports: { type: 'array', items: { type: 'string' }, example: ['running', 'swimming'] },
-                competitiveLevel: { type: 'string', enum: ['beginner', 'intermediate', 'advanced'], example: 'advanced' },
               },
             },
           },
         },
       },
       responses: {
-        200: {
-          description: 'ClientUser successfully updated',
-          content: {
-            'application/json': {
-              schema: {
-                $ref: '#/components/schemas/ClientUser',
-              },
-            },
-          },
-        },
+        200: { description: 'ClientUser successfully updated' },
         400: { description: 'Bad Request – No valid fields provided' },
         401: { description: 'Unauthorized – JWT token missing or invalid' },
-        403: { description: 'Forbidden – User not authorized to update this profile' },
+        403: { description: 'Forbidden – Not authorized to update' },
         404: { description: 'ClientUser not found' },
         500: { description: 'Internal server error' },
       },
@@ -155,18 +135,14 @@ module.exports = {
     delete: {
       summary: 'Delete a clientUser account',
       tags: ['ClientUser'],
-      description: 'Deletes a clientUser account after verifying password. Only the user themselves can delete their account.',
       security: [{ bearerAuth: [] }],
       parameters: [
         {
           name: 'id',
           in: 'path',
           required: true,
+          schema: { type: 'string' },
           description: 'ID of the clientUser to delete',
-          schema: {
-            type: 'string',
-            example: '6634567890abcdef12345678',
-          },
         },
       ],
       requestBody: {
@@ -177,7 +153,11 @@ module.exports = {
               type: 'object',
               required: ['password'],
               properties: {
-                password: { type: 'string', example: 'yourPassword123' },
+                password: {
+                  type: 'string',
+                  description: 'Password confirmation required to delete the account',
+                  example: 'yourPassword123',
+                },
               },
             },
           },
@@ -185,9 +165,9 @@ module.exports = {
       },
       responses: {
         200: { description: 'Account successfully deleted' },
-        400: { description: 'Bad Request – Password missing' },
+        400: { description: 'Password missing' },
         401: { description: 'Unauthorized – Invalid password or token' },
-        403: { description: 'Forbidden – User not authorized to delete this account' },
+        403: { description: 'Forbidden – Not allowed to delete this account' },
         404: { description: 'ClientUser not found' },
         500: { description: 'Internal server error' },
       },

@@ -2,8 +2,8 @@ const { default: mongoose } = require("mongoose");
 const User = require('../User');
 const { PROFESSIONAL_SPECIALIZATIONS } = require('../../constants/professionalSpecializations');
 const { USER_ROLES } = require('../../constants/userRoles');
-const SocialLinksSchema = require("../SocialLinks");
-
+const QualificationSchema = require("../schemas/QualificationSchema");
+const CertificationSchema = require("../schemas/CertificationSchema");
 
 const ProfessionalSchema = new mongoose.Schema({
     specializations: [{
@@ -22,11 +22,10 @@ const ProfessionalSchema = new mongoose.Schema({
     contactPhone: { type: String },
 
     languages: [{ type: String }],
-
-    //esperienza
-    expStartDate: { type: Date },
-    professionalExp: [String],
-    certifications: [String]
+    
+    qualifications: [QualificationSchema],
+    
+    certifications: [CertificationSchema]
     
 }, {timestamps: true});
 

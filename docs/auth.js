@@ -3,17 +3,17 @@ module.exports = {
     post: {
       summary: 'Authenticate user and return JWT tokens',
       tags: ['Auth'],
-      "parameters": [
+      parameters: [
         {
-          "name": "X-Device-Type",
-          "in": "header",
-          "description": "Tipo di dispositivo (desktop, mobile, tablet)",
-          "required": false,
-          "schema": {
-            "type": "string",
-            "enum": ["desktop", "mobile"]
-          }
-        }
+          name: 'X-Device-Type',
+          in: 'header',
+          description: 'Type of device making the request',
+          required: false,
+          schema: {
+            type: 'string',
+            enum: ['desktop', 'mobile'],
+          },
+        },
       ],
       requestBody: {
         required: true,
@@ -23,8 +23,12 @@ module.exports = {
               type: 'object',
               required: ['email', 'password'],
               properties: {
-                email: { type: 'string', example: 'user@gmail.com' },
-                password: { type: 'string', example: 'password123' },
+                email: { type: 'string', format: 'email', example: 'user@gmail.com' },
+                password: {
+                  type: 'string',
+                  example: 'yourPassword123',
+                  description: 'Must not be empty',
+                },
               },
             },
           },
@@ -38,8 +42,8 @@ module.exports = {
               schema: {
                 type: 'object',
                 properties: {
-                  token: { type: 'string' },
-                  refreshToken: { type: 'string' },
+                  token: { type: 'string', example: 'jwt_access_token' },
+                  refreshToken: { type: 'string', example: 'jwt_refresh_token' },
                 },
               },
             },
@@ -71,47 +75,152 @@ module.exports = {
                 'acceptedTerms',
                 'acceptedPrivacy',
                 'specializations',
+                'dateOfBirth',
+                'gender',
+                'phone'
               ],
               properties: {
                 firstName: { type: 'string', example: 'Mario' },
                 lastName: { type: 'string', example: 'Rossi' },
-                email: { type: 'string', example: 'user@gmail.com' },
-                password: { type: 'string', example: 'password123' },
-                dateOfBirth: { type: 'string', format: 'date', example: '1990-01-01' },
-                gender: { type: 'string', example: 'male' },
-                phone: { type: 'string', example: '3216549870' },
-                taxCode: { type: 'string', example: 'RSSMRA90A01H501U' },
-                pIva: { type: 'string', example: '01234567890' },
-                contactEmail: { type: 'string', example: 'studio@gmail.com' },
-                contactPhone: { type: 'string', example: '3216549870' },
-                address: {
-                  type: 'object',
-                  properties: {
-                    street: { type: 'string', example: 'Via Roma 123' },
-                    city: { type: 'string', example: 'Milano' },
-                    province: { type: 'string', example: 'MI' },
-                    zipCode: { type: 'string', example: '20100' },
-                  },
-                },
+                email: { type: 'string', format: 'email', example: 'mario.rossi@studio.com' },
+                password: { $ref: '#/components/schemas/Password' },
+                dateOfBirth: { $ref: '#/components/schemas/DateOfBirth' },
+                gender: { $ref: '#/components/schemas/Gender' },
+                phone: { $ref: '#/components/schemas/Phone' },
                 acceptedTerms: { type: 'boolean', example: true },
                 acceptedPrivacy: { type: 'boolean', example: true },
                 specializations: {
                   type: 'array',
                   items: { type: 'string' },
-                  example: ['nutritionist'],
+                  example: ['trainer', 'nutritionist']
                 },
-              },
-            },
-          },
-        },
+                qualifications: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      degreeTitle: {
+                        type: 'string',
+                        description: 'Academic degree (e.g. Diploma, Bachelor\'s Degree, Master\'s Degree, PhD, etc.)',
+                        example: 'Master\'s Degree'
+                      },
+                      institution: {
+                        type: 'string',
+                        description: 'Name of the institution that issued the degree',
+                        example: 'University of Milan'
+                      },
+                      fieldOfStudy: {
+                        type: 'string',
+                        description: 'Field of study (e.g. Sport Sciences, Nutrition and Food Sciences, etc.)',
+                        example: 'Sport Sciences'
+                      },
+                      startDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Start date of studies',
+                        example: '2018-09-01'
+                      },
+                      completionDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Date when the degree was obtained',
+                        example: '2021-07-15'
+                      }
+                    }
+                  }
+                },
+                certifications: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      certificationName: {
+                        type: 'string',
+                        description: 'Name of the certification',
+                        example: 'Personal Trainer Certification'
+                      },
+                      issuingOrganization: {
+                        type: 'string',
+                        description: 'Name of the organization that issued the certification',
+                        example: 'FIPE'
+                      },
+                      level: {
+                        type: 'string',
+                        description: 'Level or grade of the certification',
+                        example: 'Professional'
+                      },
+                      certificationId: {
+                        type: 'string',
+                        description: 'Official identification number of the certification',
+                        example: 'PT2023-1234'
+                      },
+                      certificationUrl: {
+                        type: 'string',
+                        description: 'URL link to the certification',
+                        example: 'https://certification-verify.org/PT2023-1234'
+                      },
+                      issueDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Date when the certification was issued',
+                        example: '2023-01-15'
+                      },
+                      expirationDate: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Expiration date of the certification',
+                        example: '2026-01-15'
+                      }
+                    }
+                  }
+                },
+                contactEmail: {
+                  type: 'string',
+                  format: 'email',
+                  example: 'studio@rossi.com'
+                },
+                contactPhone: {
+                  type: 'string',
+                  example: '+393331112222'
+                },
+                pIva: {
+                  type: 'string',
+                  minLength: 11,
+                  maxLength: 13,
+                  example: '12345678901'
+                },
+                taxCode: {
+                  type: 'string',
+                  minLength: 11,
+                  example: 'RSSMRA90A01H501U'
+                },
+                address: {
+                  type: 'object',
+                  properties: {
+                    street: { type: 'string', example: 'Via Milano 12' },
+                    city: { type: 'string', example: 'Milano' },
+                    province: { type: 'string', example: 'MI' },
+                    cap: { type: 'string', example: '20100' },
+                    country: { type: 'string', example: 'Italy' }
+                  }
+                },
+                languages: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: ['it', 'en']
+                }
+              }
+            }
+          }
+        }
       },
       responses: {
         201: { description: 'Professional registered successfully' },
-        400: { description: 'Missing or invalid fields (terms, privacy, specializations)' },
+        400: { description: 'Missing or invalid fields (terms, privacy, specialization)' },
         409: { description: 'Email already in use' },
-        500: { description: 'Server error during registration' },
-      },
-    },
+        500: { description: 'Server error during registration' }
+      }
+    }
   },
 
   '/auth/signup/user': {
@@ -139,95 +248,66 @@ module.exports = {
                 firstName: { type: 'string', example: 'Luca' },
                 lastName: { type: 'string', example: 'Bianchi' },
                 email: { type: 'string', example: 'luca.bianchi@example.com' },
-                password: { type: 'string', example: 'password123' },
-                dateOfBirth: { type: 'string', format: 'date', example: '1995-06-15' },
-                gender: { type: 'string', example: 'male' },
-                phone: { type: 'string', example: '+393334445556' },
+                password: { $ref: '#/components/schemas/Password' },
+                dateOfBirth: { $ref: '#/components/schemas/DateOfBirth' },
+                gender: { $ref: '#/components/schemas/Gender' },
+                phone: { $ref: '#/components/schemas/Phone' },
                 acceptedTerms: { type: 'boolean', example: true },
-                acceptedPrivacy: { type: 'boolean', example: true }
-              }
-            }
-          }
-        }
+                acceptedPrivacy: { type: 'boolean', example: true },
+              },
+            },
+          },
+        },
       },
       responses: {
         201: {
           description: 'User registered successfully. Activation email sent.',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  message: {
-                    type: 'string',
-                    example: 'Registrazione user riuscita. Per favore controlla la tua email per verificare l\'account'
-                  },
-                  userId: {
-                    type: 'string',
-                    example: '661e2b8f67e4fc5c9dfc9a91'
-                  },
-                  activationKey: {
-                    type: 'string',
-                    example: 'a3fdd5bc8ef3f542e10a1c2d4a0c4f2b'
-                  }
-                }
-              }
-            }
-          }
         },
-        400: {
-          description: 'Missing required fields or validation error',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  message: { type: 'string', example: 'È necessario accettare termini e privacy policy' },
-                  error: { type: 'string', example: 'Errore nella registrazione dello user' }
-                }
-              }
-            }
-          }
-        },
-        409: {
-          description: 'User already exists',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  message: { type: 'string', example: 'Utente già registrato con questa email' }
-                }
-              }
-            }
-          }
-        },
-        500: {
-          description: 'Server error during registration',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  message: { type: 'string', example: 'Errore nella registrazione dello user' },
-                  error: { type: 'string', example: 'Unexpected error' }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+        400: { description: 'Missing required fields or validation error' },
+        409: { description: 'User already exists' },
+        500: { description: 'Server error during registration' },
+      },
+    },
   },
 
   '/auth/refresh-token': {
     post: {
-      summary: 'Generate a new access token using the refresh token',
+      summary: 'Generate a new access token using the refresh token and device ID',
       tags: ['Auth'],
+      parameters: [
+        {
+          name: 'x-device-id',
+          in: 'header',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Device ID associated with the session',
+          example: '664567890abcdef123456789'
+        },
+        {
+          name: 'refreshToken',
+          in: 'cookie',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Refresh token stored in secure HTTP-only cookie',
+        }
+      ],
       responses: {
-        200: { description: 'New access token issued' },
-        401: { description: 'Invalid or missing refresh token' },
-        500: { description: 'Internal server error' },
+        200: {
+          description: 'New access token issued',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  accessToken: { type: 'string', example: 'newAccessToken' },
+                }
+              }
+            }
+          }
+        },
+        400: { description: 'Missing token or device ID' },
+        403: { description: 'Invalid device or token' },
+        500: { description: 'Internal server error' }
       },
     },
   },
@@ -236,8 +316,21 @@ module.exports = {
     post: {
       summary: 'Log out the current user',
       tags: ['Auth'],
+      security: [{ bearerAuth: [] }],
       responses: {
-        200: { description: 'Successfully logged out' },
+        200: {
+          description: 'Successfully logged out',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string', example: 'Logged out successfully' },
+                },
+              },
+            },
+          },
+        },
         500: { description: 'Server error during logout' },
       },
     },
@@ -246,6 +339,18 @@ module.exports = {
   '/auth/forgot-password': {
     post: {
       summary: 'Request password reset email',
+      parameters: [
+        {
+          name: 'X-Device-Type',
+          in: 'header',
+          description: 'Type of device making the request',
+          required: false,
+          schema: {
+            type: 'string',
+            enum: ['desktop', 'mobile'],
+          },
+        },
+      ],
       tags: ['Auth'],
       description: 'Sends a password reset token to the provided email if the user exists and has verified their account.',
       requestBody: {
@@ -259,12 +364,12 @@ module.exports = {
                 email: {
                   type: 'string',
                   format: 'email',
-                  example: 'user@gmail.com'
-                }
-              }
-            }
-          }
-        }
+                  example: 'user@example.com',
+                },
+              },
+            },
+          },
+        },
       },
       responses: {
         200: {
@@ -276,25 +381,24 @@ module.exports = {
                 properties: {
                   message: {
                     type: 'string',
-                    example: 'Password reset email sent.'
-                  }
-                }
-              }
-            }
-          }
+                    example: 'If the email exists, a reset link was sent.',
+                  },
+                },
+              },
+            },
+          },
         },
         500: {
-          description: 'Internal server error'
-        }
-      }
-    }
+          description: 'Internal server error',
+        },
+      },
+    },
   },
 
   '/auth/reset-password': {
     post: {
       summary: 'Reset password using token',
       tags: ['Auth'],
-      description: 'Resets the user\'s password if the provided token is valid and not expired.',
       requestBody: {
         required: true,
         content: {
@@ -307,14 +411,11 @@ module.exports = {
                   type: 'string',
                   example: 'abc123resettoken'
                 },
-                newPassword: {
-                  type: 'string',
-                  example: 'newPassword123'
-                }
-              }
-            }
-          }
-        }
+                newPassword: { $ref: '#/components/schemas/Password' }
+              },
+            },
+          },
+        },
       },
       responses: {
         200: {
@@ -324,25 +425,16 @@ module.exports = {
               schema: {
                 type: 'object',
                 properties: {
-                  message: {
-                    type: 'string',
-                    example: 'Password reset successfully.'
-                  }
-                }
-              }
-            }
-          }
+                  message: { type: 'string', example: 'Password reset successfully.' },
+                },
+              },
+            },
+          },
         },
-        400: {
-          description: 'Invalid or expired token'
-        },
-        404: {
-          description: 'User not found'
-        },
-        500: {
-          description: 'Internal server error'
-        }
-      }
-    }
-  }
+        400: { description: 'Invalid or expired token' },
+        404: { description: 'User not found' },
+        500: { description: 'Internal server error' },
+      },
+    },
+  },
 };

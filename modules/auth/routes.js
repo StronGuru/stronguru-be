@@ -2,13 +2,21 @@ const express = require('express');
 const router = express.Router();
 const AuthController = require('./controller');
 const { forgotPasswordLimiter } = require('../../middleware/rateLimit');
+const validate = require('../../middleware/validators/validationErrorHandler');
+const {
+    signupUserValidator,
+    signupProfessionalValidator,
+    loginValidator,
+    forgotPasswordValidator,
+    resetPasswordValidator
+  } = require('../../middleware/validators/authValidator');
 
-router.post('/signup/professional', AuthController.signupProfessional);
-router.post('/signup/user', AuthController.signupUser);
-router.post('/login', AuthController.login);
+router.post('/signup/professional', signupProfessionalValidator, validate, AuthController.signupProfessional);
+router.post('/signup/user',signupUserValidator, validate, AuthController.signupUser);
+router.post('/login',loginValidator, validate, AuthController.login);
 router.post('/refresh-token', AuthController.refreshToken);
 router.post('/logout', AuthController.logout);
-router.post('/forgot-password',forgotPasswordLimiter, AuthController.forgotPassword);
-router.post('/reset-password', AuthController.resetPassword);
+router.post('/forgot-password', forgotPasswordLimiter, forgotPasswordValidator, validate, AuthController.forgotPassword);
+router.post('/reset-password', resetPasswordValidator, validate, AuthController.resetPassword);
 
 module.exports = router;

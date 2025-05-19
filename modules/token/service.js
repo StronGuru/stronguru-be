@@ -23,5 +23,5 @@ exports.activateAccount = async (activationToken) => {
 
   await UserToken.deleteOne({ _id: tokenDoc._id });
 
-  return MESSAGES.AUTH.ACCOUNT_ACTIVATED;
+  return MESSAGES.TOKEN.ACTIVATION_SUCCESS;
 };

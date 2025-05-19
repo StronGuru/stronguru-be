@@ -256,6 +256,18 @@ module.exports = {
   '/auth/forgot-password': {
     post: {
       summary: 'Request password reset email',
+      parameters: [
+        {
+          name: 'X-Device-Type',
+          in: 'header',
+          description: 'Type of device making the request',
+          required: false,
+          schema: {
+            type: 'string',
+            enum: ['desktop', 'mobile'],
+          },
+        },
+      ],
       tags: ['Auth'],
       description: 'Sends a password reset token to the provided email if the user exists and has verified their account.',
       requestBody: {

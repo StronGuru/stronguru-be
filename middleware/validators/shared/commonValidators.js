@@ -40,26 +40,25 @@ exports.validatePasswordNotEmpty = (field = 'password') =>
     .notEmpty()
     .withMessage(MESSAGES.VALIDATION.MISSING_PASSWORD);
 
-// 📱 Phone number
+// 📱 Phone number - ora opzionale
 exports.validatePhone = () =>
   body('phone')
+    .optional()
     .trim()
-    .escape()
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_PHONE);
+    .escape();
 
-// ⚧️ Gender
+// ⚧️ Gender - ora opzionale
 exports.validateGender = () =>
   body('gender')
+    .optional()
     .trim()
     .isIn(['male', 'female', 'other'])
     .withMessage(MESSAGES.VALIDATION.INVALID_GENDER);
 
-// 📆 Date of birth
+// 📆 Date of birth - ora opzionale
 exports.validateDateOfBirth = () =>
   body('dateOfBirth')
-    .notEmpty()
-    .withMessage(MESSAGES.VALIDATION.REQUIRED_DOB)
+    .optional()
     .isISO8601()
     .toDate()
     .withMessage(MESSAGES.VALIDATION.INVALID_DATE);

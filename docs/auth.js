@@ -239,19 +239,13 @@ module.exports = {
                 'email',
                 'password',
                 'acceptedTerms',
-                'acceptedPrivacy',
-                'dateOfBirth',
-                'gender',
-                'phone'
+                'acceptedPrivacy'
               ],
               properties: {
                 firstName: { type: 'string', example: 'Luca' },
                 lastName: { type: 'string', example: 'Bianchi' },
                 email: { type: 'string', example: 'luca.bianchi@example.com' },
                 password: { $ref: '#/components/schemas/Password' },
-                dateOfBirth: { $ref: '#/components/schemas/DateOfBirth' },
-                gender: { $ref: '#/components/schemas/Gender' },
-                phone: { $ref: '#/components/schemas/Phone' },
                 acceptedTerms: { type: 'boolean', example: true },
                 acceptedPrivacy: { type: 'boolean', example: true },
               },

@@ -29,6 +29,7 @@ module.exports = {
   // 👤 Base user schema
   User: {
     type: 'object',
+    required: ['firstName', 'lastName', 'email', 'password'],
     properties: {
       _id: { type: 'string' },
       firstName: { type: 'string' },

@@ -17,10 +17,10 @@ const userSchema = new mongoose.Schema({
     },
 
     password: { type: String, required: true },
-    dateOfBirth: { type: Date, required: true },
-    gender: { type: String, required: true },
+    dateOfBirth: { type: Date, required: false },
+    gender: { type: String, required: false },
     address: AddressSchema,
-    phone: { type: String, required: true },
+    phone: { type: String, required: false },
     biography: { type: String, required: false },
     profileImg: { type: String, required: false },
     isVerified: { type: Boolean, default: false },

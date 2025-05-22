@@ -1,3 +1,5 @@
+const { patch } = require("../modules/professionals/routes");
+
 module.exports = {
   '/professionals': {
     get: {
@@ -36,7 +38,7 @@ module.exports = {
           required: true,
           schema: { type: 'string' },
           description: "Professional's ID",
-        },
+        }
       ],
       responses: {
         200: {
@@ -63,7 +65,7 @@ module.exports = {
           required: true,
           schema: { type: 'string' },
           description: "Professional's ID",
-        },
+        }
       ],
       requestBody: {
         required: true,
@@ -204,16 +206,31 @@ module.exports = {
         },
       },
       responses: {
-        200: { description: 'Profile updated successfully' },
-        400: { description: 'No valid fields provided' },
-        403: { description: 'Unauthorized – You can only modify your own profile' },
+        200: {
+          description: 'Professional profile updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  professionalId: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        400: { description: 'Bad request - Invalid data' },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to update this profile' },
         404: { description: 'Professional not found' },
+        422: { description: 'Validation error' },
         500: { description: 'Internal server error' },
       },
     },
 
     delete: {
-      summary: 'Delete professional account (requires password)',
+      summary: 'Delete professional account',
       tags: ['Professional'],
       security: [{ bearerAuth: [] }],
       parameters: [
@@ -231,12 +248,11 @@ module.exports = {
           'application/json': {
             schema: {
               type: 'object',
-              required: ['password'],
               properties: {
                 password: {
                   type: 'string',
-                  description: 'Current password to confirm account deletion',
-                  example: 'yourPassword123',
+                  description: 'Current password for confirmation',
+                  required: true,
                 },
               },
             },
@@ -244,12 +260,433 @@ module.exports = {
         },
       },
       responses: {
-        200: { description: 'Account successfully deleted' },
-        400: { description: 'Password missing' },
-        401: { description: 'Incorrect password' },
-        403: { description: 'Unauthorized deletion attempt' },
+        200: {
+          description: 'Account deleted successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid or password mismatch' },
+        403: { description: 'Forbidden – Not authorized to delete this account' },
         404: { description: 'Professional not found' },
-        500: { description: 'Server error during deletion' },
+        500: { description: 'Internal server error' },
+      },
+    },
+  },
+
+  '/professionals/{professionalId}/qualifications': {
+    get: {
+      summary: 'Get all qualifications for a professional',
+      tags: ['Professional Qualifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: 'List of qualifications successfully retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: {
+                  $ref: '#/components/schemas/Qualification',
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to view these qualifications' },
+        404: { description: 'Professional not found' },
+        500: { description: 'Internal server error' },
+      },
+    },
+    post: {
+      summary: 'Add a new qualification for a professional',
+      tags: ['Professional Qualifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Qualification',
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: 'Qualification added successfully',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Qualification',
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to add qualifications for this professional' },
+        404: { description: 'Professional not found' },
+        422: { description: 'Validation error' },
+        500: { description: 'Internal server error' },
+      },
+    },
+  },
+
+  '/professionals/{professionalId}/qualifications/{qualificationId}': {
+    get: {
+      summary: 'Get a specific qualification by ID',
+      tags: ['Professional Qualifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+        {
+          name: 'qualificationId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Qualification's ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Qualification successfully retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Qualification',
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to view this qualification' },
+        404: { description: 'Professional or qualification not found' },
+        500: { description: 'Internal server error' },
+      },
+    },
+    put: {
+      summary: 'Update a specific qualification',
+      tags: ['Professional Qualifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+        {
+          name: 'qualificationId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Qualification's ID",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Qualification',
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Qualification updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Qualification',
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to update this qualification' },
+        404: { description: 'Professional or qualification not found' },
+        422: { description: 'Validation error' },
+        500: { description: 'Internal server error' },
+      },
+    },
+    delete: {
+      summary: 'Delete a specific qualification',
+      tags: ['Professional Qualifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+        {
+          name: 'qualificationId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Qualification's ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Qualification deleted successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to delete this qualification' },
+        404: { description: 'Professional or qualification not found' },
+        500: { description: 'Internal server error' },
+      },
+    },
+  },
+
+  '/professionals/{professionalId}/certifications': {
+    get: {
+      summary: 'Get all certifications for a professional',
+      tags: ['Professional Certifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: 'List of certifications successfully retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: {
+                  $ref: '#/components/schemas/Certification',
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to view these certifications' },
+        404: { description: 'Professional not found' },
+        500: { description: 'Internal server error' },
+      },
+    },
+    post: {
+      summary: 'Add a new certification for a professional',
+      tags: ['Professional Certifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Certification',
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: 'Certification added successfully',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Certification',
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to add certifications for this professional' },
+        404: { description: 'Professional not found' },
+        422: { description: 'Validation error' },
+        500: { description: 'Internal server error' },
+      },
+    },
+  },
+
+  '/professionals/{professionalId}/certifications/{certificationId}': {
+    get: {
+      summary: 'Get a specific certification by ID',
+      tags: ['Professional Certifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+        {
+          name: 'certificationId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Certification's ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Certification successfully retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Certification',
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to view this certification' },
+        404: { description: 'Professional or certification not found' },
+        500: { description: 'Internal server error' },
+      },
+    },
+    put: {
+      summary: 'Update a specific certification',
+      tags: ['Professional Certifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+        {
+          name: 'certificationId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Certification's ID",
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/Certification',
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Certification updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/Certification',
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to update this certification' },
+        404: { description: 'Professional or certification not found' },
+        422: { description: 'Validation error' },
+        500: { description: 'Internal server error' },
+      },
+    },
+    delete: {
+      summary: 'Delete a specific certification',
+      tags: ['Professional Certifications'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID",
+        },
+        {
+          name: 'certificationId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Certification's ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Certification deleted successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized – JWT missing or invalid' },
+        403: { description: 'Forbidden – Not authorized to delete this certification' },
+        404: { description: 'Professional or certification not found' },
+        500: { description: 'Internal server error' },
       },
     },
   },

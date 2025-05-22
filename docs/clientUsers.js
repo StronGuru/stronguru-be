@@ -36,7 +36,7 @@ module.exports = {
           required: true,
           schema: { type: 'string' },
           description: 'ID of the clientUser to retrieve',
-        },
+        }
       ],
       responses: {
         200: {
@@ -64,7 +64,7 @@ module.exports = {
           required: true,
           schema: { type: 'string' },
           description: 'ID of the clientUser to update',
-        },
+        }
       ],
       requestBody: {
         required: true,
@@ -143,7 +143,7 @@ module.exports = {
           required: true,
           schema: { type: 'string' },
           description: 'ID of the clientUser to delete',
-        },
+        }
       ],
       requestBody: {
         required: true,

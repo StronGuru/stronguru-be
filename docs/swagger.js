@@ -35,6 +35,18 @@ module.exports = {
         scheme: 'bearer',
         bearerFormat: 'JWT',
       },
+      customHeaderAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'x-device-id',
+        description: 'Custom header required for identifying tenant or request origin',
+      },
     },
   },
+  // Applica entrambi gli schemi di sicurezza a livello globale
+  security: [
+    {
+      bearerAuth: []
+    }
+  ]
 };

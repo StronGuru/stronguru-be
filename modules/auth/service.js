@@ -214,11 +214,6 @@ exports.login = async (data, req) => {
         throwError(`${MESSAGES.AUTH.EMAIL_NOT_VERIFIED}: ${user.email}`, 401);
     }
 
-    // Create JWT tokens
-    const payload = { id: user.id, role: user.role, deviceType: deviceType };
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-
     // Find existing device by deviceId cookie
     let existingDevice;
     const deviceId = req.headers['x-device-id'];
@@ -228,22 +223,34 @@ exports.login = async (data, req) => {
 
     // Update or create user device
     if (existingDevice) {
-        existingDevice.refreshToken = refreshToken;
         existingDevice.ipAddress = req.ip;
         existingDevice.userAgent = req.useragent.source;
         existingDevice.deviceType = deviceType;
         existingDevice.lastAccessed = new Date();
-        await existingDevice.save();
+
     } else {
         // create new device, if doesn't exists
-        existingDevice = await new UserDevices({
+        existingDevice = new UserDevices({
             user: user._id,
             ipAddress: req.ip,
             userAgent: req.useragent.source,
-            refreshToken: refreshToken,
             deviceType
-        }).save();
+        });
     }
+
+    // Create JWT tokens con device-id incluso nel payload
+    const payload = { 
+        id: user.id, 
+        role: user.role, 
+        deviceType: deviceType,
+        deviceId: existingDevice._id.toString() // Aggiungi device-id al payload
+    };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    // Aggiorna il refresh token nel dispositivo
+    existingDevice.refreshToken = refreshToken;
+    await existingDevice.save();
 
     // Respond with accessToken and user info
     return {
@@ -279,7 +286,8 @@ exports.refreshToken = async ({refreshToken, deviceId}) => {
     const payload = {
         id: decoded.id,
         role: decoded.role,
-        deviceType: decoded.deviceType
+        deviceType: decoded.deviceType,
+        deviceId: device._id.toString() // Mantieni il device-id nel nuovo token
     };
 
     const newAccessToken = generateAccessToken(payload);

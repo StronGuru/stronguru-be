@@ -27,20 +27,19 @@ exports.updateProfessionalProfile = async (professionalIdParam, userIdSession, u
     throwError(MESSAGES.GENERAL.UNAUTHORIZED_ACCESS, 403);
   }
 
-  const allowedFields = [
-    'firstName', 'lastName', 'phone', 'address', 'dateOfBirth',
-    'biography', 'profileImg', 'socialLinks', 'gender',
-    'contactEmail', 'contactPhone', 'languages',
-    'professionalExp', 'expStartDate', 'certifications'
+  // Campi che non possono essere aggiornati
+  const excludedFields = [
+    'password', 'email', 'role', 'isVerified', 'createdAt', 'updatedAt', 'ambassador', 'acceptedPrivacy', 'acceptedTerms'
   ];
 
   const sanitizedBody = {};
 
-  for (const field of allowedFields) {
-    if (updateData[field] !== undefined) {
+  // Aggiungi tutti i campi tranne quelli esclusi
+  Object.keys(updateData).forEach(field => {
+    if (!excludedFields.includes(field)) {
       sanitizedBody[field] = updateData[field];
     }
-  }
+  });
 
   if (Object.keys(sanitizedBody).length === 0) {
     throwError(MESSAGES.VALIDATION.NO_VALID_FIELDS, 400);

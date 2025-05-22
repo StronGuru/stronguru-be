@@ -3,7 +3,7 @@ module.exports = {
     get: {
       summary: 'Retrieve all registered professionals',
       tags: ['Professional'],
-      description: 'Returns a list of all professionals. Admin access only.',
+      description: 'Returns a list of all professionals.',
       security: [{ bearerAuth: [] }],
       responses: {
         200: {

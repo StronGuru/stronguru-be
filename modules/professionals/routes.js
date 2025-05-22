@@ -7,7 +7,7 @@ const { updateProfessionalValidator } = require('../../middleware/validators/pro
 const validate = require('../../middleware/validators/validationErrorHandler');
 
 // Admin only
-router.get('/', authMiddleware(USER_ROLES.ADMIN), ProfessionalController.getAllProfessionals);
+router.get('/', authMiddleware(), ProfessionalController.getAllProfessionals);  //authMiddleware(USER_ROLES.ADMIN)
 
 // Authenticated professional
 router.get('/:id', authMiddleware(), ProfessionalController.getProfessionalProfile);

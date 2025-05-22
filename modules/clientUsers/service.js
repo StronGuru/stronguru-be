@@ -28,20 +28,19 @@ exports.updateClientUserProfile = async (clientUserId, user, updateData) => {
     throwError(MESSAGES.GENERAL.UNAUTHORIZED_ACCESS, 403);
   }
 
-  const allowedFields = [
-    'firstName', 'lastName', 'phone', 'address', 'dateOfBirth',
-    'biography', 'profileImg', 'socialLinks', 'gender',
-    'healthData', 'fitnessLevel', 'goals', 'activityLevel',
-    'preferences', 'currentSports', 'competitiveLevel'
-  ];
+ // Campi che non possono essere aggiornati
+ const excludedFields = [
+  'password', 'email', 'role', 'isVerified', 'createdAt', 'updatedAt', 'ambassador', 'acceptedPrivacy', 'acceptedTerms'
+];
 
   const sanitizedBody = {};
 
-  for (const field of allowedFields) {
-    if (updateData[field] !== undefined) {
+  // Aggiungi tutti i campi tranne quelli esclusi
+  Object.keys(updateData).forEach(field => {
+    if (!excludedFields.includes(field)) {
       sanitizedBody[field] = updateData[field];
     }
-  }
+  });
 
   if (Object.keys(sanitizedBody).length === 0) {
     throwError(MESSAGES.VALIDATION.NO_VALID_FIELDS, 400);

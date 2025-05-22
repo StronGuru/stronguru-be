@@ -159,4 +159,84 @@ module.exports = {
       timeZone: { type: 'string' },
     },
   },
+  // Definizione dello schema Qualification
+Qualification: {
+  type: 'object',
+  properties: {
+    degreeTitle: {
+      type: 'string',
+      description: 'Academic degree (e.g. Diploma, Bachelor\'s Degree, Master\'s Degree, PhD, etc.)',
+      example: 'Master\'s Degree'
+    },
+    institution: {
+      type: 'string',
+      description: 'Name of the institution that issued the degree',
+      example: 'University of Milan'
+    },
+    fieldOfStudy: {
+      type: 'string',
+      description: 'Field of study (e.g. Sport Sciences, Nutrition and Food Sciences, etc.)',
+      example: 'Sport Sciences'
+    },
+    startDate: {
+      type: 'string',
+      format: 'date',
+      description: 'Start date of studies',
+      example: '2018-09-01'
+    },
+    completionDate: {
+      type: 'string',
+      format: 'date',
+      description: 'Date when the degree was obtained',
+      example: '2021-07-15'
+    }
+  },
+  required: ['degreeTitle', 'institution', 'fieldOfStudy', 'startDate', 'completionDate']
+},
+
+// Definizione dello schema Certification
+Certification: {
+  type: 'object',
+  properties: {
+    certificationName: {
+      type: 'string',
+      description: 'Name of the certification',
+      example: 'Personal Trainer Certification'
+    },
+    issuingOrganization: {
+      type: 'string',
+      description: 'Name of the organization that issued the certification',
+      example: 'FIPE'
+    },
+    level: {
+      type: 'string',
+      description: 'Level or grade of the certification (e.g. B2, Basic Level, Professional)',
+      example: 'Professional'
+    },
+    certificationId: {
+      type: 'string',
+      description: 'Official identification number of the certification',
+      example: 'PT2023-1234'
+    },
+    certificationUrl: {
+      type: 'string',
+      description: 'URL link to the certification',
+      example: 'https://certification-verify.org/PT2023-1234'
+    },
+    issueDate: {
+      type: 'string',
+      format: 'date',
+      description: 'Date when the certification was issued',
+      example: '2023-01-15'
+    },
+    expirationDate: {
+      type: 'string',
+      format: 'date',
+      description: 'Expiration date of the certification (if applicable)',
+      example: '2026-01-15'
+    }
+  },
+  required: ['certificationName', 'issuingOrganization', 'issueDate']
+},
 };
+

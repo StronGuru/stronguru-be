@@ -29,6 +29,6 @@ const QualificationSchema = new mongoose.Schema({
     description: "Date when the degree was obtained",
     required: true
   }
-}, { _id: false});
+});
 
 module.exports = QualificationSchema;

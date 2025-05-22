@@ -1,17 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../../middleware/auth');
-const { USER_ROLES } = require('../../constants/userRoles');
-const ProfessionalController = require('./controller');
+const professionalController = require('./controller');
+const auth = require('../../middleware/auth');
+const validationErrorHandler = require('../../middleware/validators/validationErrorHandler');
 const { updateProfessionalValidator } = require('../../middleware/validators/professionalValidator');
-const validate = require('../../middleware/validators/validationErrorHandler');
 
-// Admin only
-router.get('/', authMiddleware(), ProfessionalController.getAllProfessionals);  //authMiddleware(USER_ROLES.ADMIN)
+// Importa le rotte per qualifiche e certificazioni
+const qualificationsRoutes = require('./qualifications/routes');
+const certificationsRoutes = require('./certifications/routes');
 
-// Authenticated professional
-router.get('/:id', authMiddleware(), ProfessionalController.getProfessionalProfile);
-router.patch('/:id', authMiddleware(),updateProfessionalValidator, validate, ProfessionalController.updateProfessionalProfile);
-router.delete('/:id', authMiddleware(), ProfessionalController.deleteProfessionalAccount);
+// Rotte principali per i professionisti
+router.get('/', professionalController.getAllProfessionals);
+router.get('/:professionalId', auth(), professionalController.getProfessionalProfile);
+router.patch('/:professionalId', auth(), updateProfessionalValidator, validationErrorHandler, professionalController.updateProfessionalProfile);
+router.delete('/:professionalId', auth(), professionalController.deleteProfessionalAccount);
+
+// Collega le rotte per qualifiche e certificazioni
+router.use('/:professionalId/qualifications', qualificationsRoutes);
+router.use('/:professionalId/certifications', certificationsRoutes);
 
 module.exports = router;

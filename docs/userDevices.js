@@ -45,7 +45,7 @@ module.exports = {
           required: true,
           description: 'Device ID',
           schema: { type: 'string', example: '664567890abcdef123456789' },
-        },
+        }
       ],
       responses: {
         200: {
@@ -72,7 +72,7 @@ module.exports = {
           required: true,
           description: 'ID of the device to delete',
           schema: { type: 'string', example: '664567890abcdef123456789' },
-        },
+        }
       ],
       responses: {
         200: { description: 'Device successfully deleted' },

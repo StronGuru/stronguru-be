@@ -39,6 +39,6 @@ const CertificationSchema = new mongoose.Schema({
     description: "Expiration date of the certification (if applicable)",
     required: false
   },
-}, {_id: false} );
+} );
 
 module.exports = CertificationSchema;

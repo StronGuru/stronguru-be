@@ -24,6 +24,7 @@ exports.getQualificationById = async (req, res, next) => {
 exports.createQualification = async (req, res, next) => {
   try {
     const { professionalId } = req.params;
+    console.log(professionalId)
     const newQualification = await qualificationService.createQualification(professionalId, req.body, req.user._id);
     res.status(201).json(newQualification);
   } catch (error) {

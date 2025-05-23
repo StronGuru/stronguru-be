@@ -16,7 +16,7 @@ router.patch('/:id', auth(), updateProfessionalValidator, validationErrorHandler
 router.delete('/:id', auth(), professionalController.deleteProfessionalAccount);
 
 // Collega le rotte per qualifiche e certificazioni
-router.use('/:id/qualifications', qualificationsRoutes);
-router.use('/:id/certifications', certificationsRoutes);
+router.use('/:professionalId/qualifications', qualificationsRoutes);
+router.use('/:professionalId/certifications', certificationsRoutes);
 
 module.exports = router;

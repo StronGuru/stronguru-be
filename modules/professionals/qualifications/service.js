@@ -90,7 +90,7 @@ exports.deleteQualification = async (professionalId, qualificationId, userId) =>
     throwError('Qualifica non trovata', 404);
   }
 
-  qualification.remove();
+  professional.qualifications.pull(qualificationId);
   await professional.save();
 
   return { message: 'Qualifica eliminata con successo' };

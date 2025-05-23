@@ -90,7 +90,7 @@ exports.deleteCertification = async (professionalId, certificationId, userId) =>
     throwError('Certificazione non trovata', 404);
   }
 
-  certification.remove();
+  professional.certifications.pull(certificationId);
   await professional.save();
 
   return { message: 'Certificazione eliminata con successo' };

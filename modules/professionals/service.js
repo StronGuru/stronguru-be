@@ -11,7 +11,7 @@ exports.getAllProfessionals = async () => {
 };
 
 exports.getProfessionalProfile = async (professionalId, user) => {
-  if (user.role !== 'admin' && professionalId !== user._id.toString()) {
+  if (professionalId !== user._id.toString()) {
     throwError(MESSAGES.GENERAL.UNAUTHORIZED_ACCESS, 403);
   }
 

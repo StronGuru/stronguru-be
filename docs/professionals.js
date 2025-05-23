@@ -20,7 +20,6 @@ module.exports = {
           },
         },
         401: { description: 'Unauthorized – JWT missing or invalid' },
-        403: { description: 'Forbidden – Admin access required' },
         500: { description: 'Internal server error' },
       },
     },

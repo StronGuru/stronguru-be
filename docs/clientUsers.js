@@ -3,7 +3,7 @@ module.exports = {
     get: {
       summary: 'Retrieve all registered clientUsers',
       tags: ['ClientUser'],
-      description: 'Returns a list of all client users. Admin access only.',
+      description: 'Returns a list of all client users.',
       security: [{ bearerAuth: [] }],
       responses: {
         200: {
@@ -18,7 +18,6 @@ module.exports = {
           },
         },
         401: { description: 'Unauthorized – JWT token missing or invalid' },
-        403: { description: 'Forbidden – Admin access required' },
         500: { description: 'Internal server error' },
       },
     },

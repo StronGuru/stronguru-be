@@ -7,7 +7,7 @@ const validate = require('../../middleware/validators/validationErrorHandler');
 const { updateClientUserValidator } = require('../../middleware/validators/clientUserValidator');
 
 // Admin only
-router.get('/', authMiddleware(USER_ROLES.ADMIN), ClientUserController.getAllClientUsers);
+router.get('/', authMiddleware(), ClientUserController.getAllClientUsers);
 
 // Authenticated client user
 router.get('/:id', authMiddleware(), ClientUserController.getClientUserProfile);

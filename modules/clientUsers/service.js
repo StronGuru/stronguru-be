@@ -11,7 +11,7 @@ exports.getAllClientUsers = async () => {
 };
 
 exports.getClientUserProfile = async (clientUserId, user) => {
-  if (user.role !== 'admin' && clientUserId !== user._id.toString()) {
+  if (clientUserId !== user._id.toString()) {
     throwError(MESSAGES.GENERAL.UNAUTHORIZED_ACCESS, 403);
   }
 

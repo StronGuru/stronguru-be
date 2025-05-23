@@ -10,13 +10,13 @@ const qualificationsRoutes = require('./qualifications/routes');
 const certificationsRoutes = require('./certifications/routes');
 
 // Rotte principali per i professionisti
-router.get('/', professionalController.getAllProfessionals);
-router.get('/:professionalId', auth(), professionalController.getProfessionalProfile);
-router.patch('/:professionalId', auth(), updateProfessionalValidator, validationErrorHandler, professionalController.updateProfessionalProfile);
-router.delete('/:professionalId', auth(), professionalController.deleteProfessionalAccount);
+router.get('/', auth(), professionalController.getAllProfessionals);
+router.get('/:id', auth(), professionalController.getProfessionalProfile);
+router.patch('/:id', auth(), updateProfessionalValidator, validationErrorHandler, professionalController.updateProfessionalProfile);
+router.delete('/:id', auth(), professionalController.deleteProfessionalAccount);
 
 // Collega le rotte per qualifiche e certificazioni
-router.use('/:professionalId/qualifications', qualificationsRoutes);
-router.use('/:professionalId/certifications', certificationsRoutes);
+router.use('/:id/qualifications', qualificationsRoutes);
+router.use('/:id/certifications', certificationsRoutes);
 
 module.exports = router;

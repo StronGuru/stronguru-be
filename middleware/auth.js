@@ -15,7 +15,6 @@ module.exports = (roles = []) => {
 
       if (!user) return res.status(401).json({ msg: MESSAGES.AUTH.TOKEN_MISSING });
 
-      console.log('User from JWT:', user);
       
       // Estrai deviceId dal token JWT invece che dall'header
       const deviceId = user.deviceId;

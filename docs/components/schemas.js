@@ -54,9 +54,9 @@ module.exports = {
           pIva: { type: 'string' },
           taxCode: { type: 'string' },
           languages: { type: 'array', items: { type: 'string' } },
-          expStartDate: { type: 'string', format: 'date' },
-          professionalExp: { type: 'array', items: { type: 'string' } },
-          certifications: { type: 'array', items: { type: 'string' } },
+          qualifications: { type: 'array', items: { $ref: '#/components/schemas/Qualification' } },
+          certifications: { type: 'array', items: { $ref: '#/components/schemas/Certification' } },
+          notes: { type: 'array', items: { $ref: '#/components/schemas/ProfessionalNote' } },
           address: {
             type: 'object',
             properties: {
@@ -237,6 +237,31 @@ Certification: {
     }
   },
   required: ['certificationName', 'issuingOrganization', 'issueDate']
+},
+ProfessionalNote: {
+  type: 'object',
+  required: ['title', 'content'],
+  properties: {
+    _id: { type: 'string' },
+    title: {
+      type: 'string',
+      description: 'Note title'
+    },
+    content: {
+      type: 'string',
+      description: 'Note content'
+    },
+    createdAt: {
+      type: 'string',
+      format: 'date-time',
+      description: 'Creation date of the note'
+    },
+    updatedAt: {
+      type: 'string',
+      format: 'date-time',
+      description: 'Last update date of the note'
+    }
+  }
 },
 };
 

@@ -689,4 +689,207 @@ module.exports = {
       },
     },
   },
+  '/professionals/{professionalId}/notes': {
+    get: {
+      summary: 'Get all personal notes',
+      tags: ['Professional Notes'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID"
+        }
+      ],
+      responses: {
+        200: {
+          description: 'List of personal notes successfully retrieved',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/ProfessionalNote' }
+              }
+            }
+          }
+        },
+        401: { description: 'Unauthorized - JWT missing or invalid' },
+        403: { description: 'Forbidden - User not authorized to access these notes' },
+        404: { description: 'Professional not found' },
+        500: { description: 'Internal server error' }
+      }
+    },
+    post: {
+      summary: 'Create a new personal note',
+      tags: ['Professional Notes'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID"
+        }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['title', 'content'],
+              properties: {
+                title: {
+                  type: 'string',
+                  description: 'Note title'
+                },
+                content: {
+                  type: 'string',
+                  description: 'Note content'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        201: {
+          description: 'Personal note created successfully',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ProfessionalNote' }
+            }
+          }
+        },
+        401: { description: 'Unauthorized - JWT missing or invalid' },
+        403: { description: 'Forbidden - User not authorized to create notes' },
+        404: { description: 'Professional not found' },
+        500: { description: 'Internal server error' }
+      }
+    }
+  },
+
+  '/professionals/{professionalId}/notes/{noteId}': {
+    get: {
+      summary: 'Get a specific personal note',
+      tags: ['Professional Notes'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID"
+        },
+        {
+          name: 'noteId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Note ID'
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Personal note successfully retrieved',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ProfessionalNote' }
+            }
+          }
+        },
+        401: { description: 'Unauthorized - JWT missing or invalid' },
+        403: { description: 'Forbidden - User not authorized to access this note' },
+        404: { description: 'Professional or note not found' },
+        500: { description: 'Internal server error' }
+      }
+    },
+    put: {
+      summary: 'Update a personal note',
+      tags: ['Professional Notes'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID"
+        },
+        {
+          name: 'noteId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Note ID'
+        }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                title: {
+                  type: 'string',
+                  description: 'Note title'
+                },
+                content: {
+                  type: 'string',
+                  description: 'Note content'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: 'Personal note updated successfully',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ProfessionalNote' }
+            }
+          }
+        },
+        401: { description: 'Unauthorized - JWT missing or invalid' },
+        403: { description: 'Forbidden - User not authorized to update this note' },
+        404: { description: 'Professional or note not found' },
+        500: { description: 'Internal server error' }
+      }
+    },
+    delete: {
+      summary: 'Delete a personal note',
+      tags: ['Professional Notes'],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'professionalId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: "Professional's ID"
+        },
+        {
+          name: 'noteId',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Note ID'
+        }
+      ],
+      responses: {
+        204: { description: 'Personal note deleted successfully' },
+        401: { description: 'Unauthorized - JWT missing or invalid' },
+        403: { description: 'Forbidden - User not authorized to delete this note' },
+        404: { description: 'Professional or note not found' },
+        500: { description: 'Internal server error' }
+      }
+    }
+  }
 };

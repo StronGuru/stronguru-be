@@ -66,9 +66,11 @@ exports.updateCertification = async (professionalId, certificationId, certificat
     throwError('Certificazione non trovata', 404);
   }
 
-  // Aggiorna i campi della certificazione
+  // Aggiorna solo i campi forniti, mantenendo gli altri intatti
   Object.keys(certificationData).forEach(key => {
-    certification[key] = certificationData[key];
+    if (certificationData[key] !== undefined) {
+      certification[key] = certificationData[key];
+    }
   });
 
   await professional.save();
@@ -90,7 +92,7 @@ exports.deleteCertification = async (professionalId, certificationId, userId) =>
     throwError('Certificazione non trovata', 404);
   }
 
-  certification.remove();
+  professional.certifications.pull(certificationId);
   await professional.save();
 
   return { message: 'Certificazione eliminata con successo' };

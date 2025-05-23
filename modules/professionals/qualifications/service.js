@@ -66,9 +66,10 @@ exports.updateQualification = async (professionalId, qualificationId, qualificat
     throwError('Qualifica non trovata', 404);
   }
 
-  // Aggiorna i campi della qualifica
   Object.keys(qualificationData).forEach(key => {
-    qualification[key] = qualificationData[key];
+    if (qualificationData[key] !== undefined) {
+      qualification[key] = qualificationData[key];
+    }
   });
 
   await professional.save();
@@ -90,7 +91,7 @@ exports.deleteQualification = async (professionalId, qualificationId, userId) =>
     throwError('Qualifica non trovata', 404);
   }
 
-  qualification.remove();
+  professional.qualifications.pull(qualificationId);
   await professional.save();
 
   return { message: 'Qualifica eliminata con successo' };

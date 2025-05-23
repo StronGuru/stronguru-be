@@ -66,9 +66,10 @@ exports.updateQualification = async (professionalId, qualificationId, qualificat
     throwError('Qualifica non trovata', 404);
   }
 
-  // Aggiorna i campi della qualifica
   Object.keys(qualificationData).forEach(key => {
-    qualification[key] = qualificationData[key];
+    if (qualificationData[key] !== undefined) {
+      qualification[key] = qualificationData[key];
+    }
   });
 
   await professional.save();

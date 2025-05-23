@@ -4,6 +4,7 @@ const { PROFESSIONAL_SPECIALIZATIONS } = require('../../constants/professionalSp
 const { USER_ROLES } = require('../../constants/userRoles');
 const QualificationSchema = require("../schemas/QualificationSchema");
 const CertificationSchema = require("../schemas/CertificationSchema");
+const ProfessionalNoteSchema = require("../schemas/ProfessionalNoteSchema");
 
 const ProfessionalSchema = new mongoose.Schema({
     specializations: [{
@@ -25,7 +26,9 @@ const ProfessionalSchema = new mongoose.Schema({
     
     qualifications: [QualificationSchema],
     
-    certifications: [CertificationSchema]
+    certifications: [CertificationSchema],
+    
+    personalNotes: [ProfessionalNoteSchema]
     
 }, {timestamps: true});
 

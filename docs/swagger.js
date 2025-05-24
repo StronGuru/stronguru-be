@@ -4,6 +4,7 @@ const professionals = require('./professionals');
 const clientUsers = require('./clientUsers');
 const token = require('./token');
 const userDevices = require('./userDevices');
+const appointments = require('./appointments');
 const schemas = require('./components/schemas');
 
 module.exports = {
@@ -26,6 +27,7 @@ module.exports = {
     ...clientUsers,
     ...token,
     ...userDevices,
+    ...appointments
   },
   components: {
     schemas,

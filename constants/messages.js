@@ -104,6 +104,23 @@ const MESSAGES = {
       NOT_FOUND: 'User settings not found',
       UPDATED: 'Settings updated successfully',
       INVALID_FIELDS: 'No valid fields provided for update',
+    },
+
+    APPOINTMENTS: {
+      // Errors
+      INVALID_TIME_RANGE: 'End time must be after start time',
+      SLOT_NOT_FOUND: 'Appointment slot not found',
+      SLOT_ALREADY_BOOKED: 'This slot is already booked',
+      MAX_PARTICIPANTS_REACHED: 'Maximum number of participants reached',
+      UNAUTHORIZED_STATUS_UPDATE: 'You are not authorized to update this appointment status',
+      INVALID_STATUS: 'Invalid appointment status',
+      PAST_APPOINTMENT: 'Cannot modify past appointments',
+      OVERLAPPING_SLOT: 'This time slot overlaps with an existing appointment',
+      
+      // Success
+      SLOT_CREATED: 'Appointment slot created successfully',
+      APPOINTMENT_BOOKED: 'Appointment booked successfully',
+      STATUS_UPDATED: 'Appointment status updated successfully'
     }
     
   };

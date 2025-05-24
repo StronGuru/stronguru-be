@@ -72,6 +72,9 @@ app.use('/clientUsers', authMiddleware(), clientUsersAPI);
 const userDevicesAPI = require('./modules/userDevices/routes');
 app.use('/devices', authMiddleware(), userDevicesAPI);
 
+const appointmentsAPI = require('./modules/appointments/routes');
+app.use('/appointments', appointmentsAPI);
+
 //After the routes!
 app.use(errorHandler);
 

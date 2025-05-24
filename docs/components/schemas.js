@@ -263,5 +263,136 @@ ProfessionalNote: {
     }
   }
 },
+  // 📅 Appointment schemas
+  AppointmentStatus: {
+    type: 'string',
+    enum: ['available', 'booked', 'confirmed', 'completed', 'cancelled'],
+    example: 'available'
+  },
+  
+  Appointment: {
+    type: 'object',
+    required: ['title', 'startTime', 'endTime', 'professional'],
+    properties: {
+        _id: { type: 'string' },
+        title: { 
+            type: 'string',
+            example: 'Group Training Session'
+        },
+        description: {
+            type: 'string',
+            example: 'High-intensity interval training for beginners'
+        },
+        startTime: {
+            type: 'string',
+            format: 'date-time',
+            example: '2024-01-20T10:00:00Z'
+        },
+        endTime: {
+            type: 'string',
+            format: 'date-time',
+            example: '2024-01-20T11:00:00Z'
+        },
+        professional: {
+            type: 'string',
+            description: 'Professional ID'
+        },
+        participants: {
+            type: 'array',
+            items: {
+                type: 'string',
+                description: 'User ID'
+            }
+        },
+        maxParticipants: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 100,
+            example: 10
+        },
+        status: { $ref: '#/components/schemas/AppointmentStatus' },
+        price: {
+            type: 'number',
+            minimum: 0,
+            example: 50.00
+        },
+        
+        // Recurring appointment fields
+        isRecurring: {
+            type: 'boolean',
+            default: false
+        },
+        recurrencePattern: {
+            type: 'string',
+            enum: ['daily', 'weekly', 'monthly']
+        },
+        recurrenceInterval: {
+            type: 'integer',
+            minimum: 1,
+            default: 1
+        },
+        recurrenceEndDate: {
+            type: 'string',
+            format: 'date-time'
+        },
+        daysOfWeek: {
+            type: 'array',
+            items: {
+                type: 'integer',
+                minimum: 0,
+                maximum: 6
+            }
+        },
+        meetingLink: {
+            type: 'string',
+            format: 'uri',
+            example: 'https://meet.stronguru.com/session/123'
+        }
+    }
+  },
+  
+  CreateAppointmentSlot: {
+    type: 'object',
+    required: ['title', 'startTime', 'endTime'],
+    properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+        startTime: { type: 'string', format: 'date-time' },
+        endTime: { type: 'string', format: 'date-time' },
+        maxParticipants: { type: 'integer', minimum: 1, maximum: 100 },
+        price: { type: 'number', minimum: 0 },
+        
+        // Recurring appointment fields
+        isRecurring: { type: 'boolean' },
+        recurrencePattern: {
+            type: 'string',
+            enum: ['daily', 'weekly', 'monthly']
+        },
+        recurrenceInterval: {
+            type: 'integer',
+            minimum: 1
+        },
+        recurrenceEndDate: {
+            type: 'string',
+            format: 'date-time'
+        },
+        daysOfWeek: {
+            type: 'array',
+            items: {
+                type: 'integer',
+                minimum: 0,
+                maximum: 6
+            }
+        }
+    }
+  },
+  
+  UpdateAppointmentStatus: {
+    type: 'object',
+    required: ['status'],
+    properties: {
+        status: { $ref: '#/components/schemas/AppointmentStatus' }
+    }
+  }
 };
 

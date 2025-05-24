@@ -1,6 +1,8 @@
 const EMAIL_TEMPLATES = {
     REGISTRATION: 'd-b2059e2754a340ee862d62689f1771a6',
-    PASSWORD_RESET: 'd-af3b594b59284aeb814ef3be2f2d9f1c'
+    PASSWORD_RESET: 'd-af3b594b59284aeb814ef3be2f2d9f1c',
+    APPOINTMENT_STATUS_CHANGED: 'template',
+    APPOINTMENT_CREATED: 'template'
   };
   
   module.exports = EMAIL_TEMPLATES;
